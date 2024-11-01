@@ -1,27 +1,26 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
-    return view('landing.home');  
-})->name('home');
+    return view('welcome');
+});
 
-
-Route::get('/contact-us', function () {
-    return view('landing.contact-us');
-})->name('contact');
-Route::get('/products', function () {return view('landing.products');})->name('products');
-Route::get('/about-us', function () {
-    return view('landing.about-us');
-})->name('about-us'); 
-Route::get('/blogs', function () {
-    return view('landing.blogs');
-})->name('blogs');
-Route::get('/shoping-cart', function () {
-    return view('landing.shoping-cart');
-})->name('shoping-cart');
+Route::get('/login', function () {
+    return view('auth.login');
+})->name('login');
+Route::get('/register', function () {
+    return view('auth.register');
+})->name('register');
 Route::get('/dashboard', function () {
-    return view('dashboard.sidebar');
-})->name('dashboard');
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';

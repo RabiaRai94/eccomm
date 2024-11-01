@@ -9,6 +9,7 @@
           padding-top: 20px;
           color: #fff;
           transition: width 0.3s ease;
+    
      }
 
      #sidebarMenu .nav-link {
@@ -19,6 +20,7 @@
           align-items: center;
           gap: 10px;
           transition: color 0.2s, background 0.2s;
+      
      }
 
      #sidebarMenu .nav-link:hover {
@@ -39,6 +41,7 @@
 
      #sidebarMenu .nav-item {
           margin-bottom: 5px;
+          list-style: none;
      }
 
      #sidebarMenu.collapsed {
@@ -55,7 +58,7 @@
 
    
      .sub-menu {
-          list-style: none;
+        
           padding-left: 20px;
        
           margin: 0;
@@ -66,6 +69,7 @@
      .sub-menu li a {
           display: block;
           padding: 10px 20px;
+        
           color: #adb5bd;
           text-decoration: none;
           font-size: 14px;
@@ -165,6 +169,6 @@
         });
 
         link.classList.add('active');
-        link.style.color = 'blue';
+        link.style.color = 'white';
     }
 </script>
