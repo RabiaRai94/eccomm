@@ -73,7 +73,7 @@
                               <li>
                                    <a href="{{ route('register') }}">Register</a>
                               </li>
-
+                              <a href="{{ route('users.index') }}">Users</a>
 
                          </ul>
                     </div>
