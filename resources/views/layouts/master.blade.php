@@ -8,7 +8,7 @@
 
   <div class="container-fluid">
     <div class="row">
-      @include('layouts.header')
+      @include('layouts.main-menu')
       
 
       <main class="container-fluid">

@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Payment;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payment_methods', function (Blueprint $table) {
+        Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
-            $table->integer('name')->default(PaymentMethodEnum::COD);
-            $table->string('provider')->nullable(); //  'Stripe', 'PayPal' 
-            $table->string('details')->nullable(); //  card types
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade'); // Links to the main product
+            $table->integer('size')->default(ProductSizeEnum::MEDIUM);
+            $table->decimal('price', 10, 2);
+            $table->integer('stock')->default(0); 
             $table->timestamps();
         });
-        
     }
 
     /**
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payment_methods');
+        Schema::dropIfExists('product_variants');
     }
 };

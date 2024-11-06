@@ -21,8 +21,6 @@ return new class extends Migration
             $table->string('address', 255)->nullable();
             $table->string('postal_code', 20)->nullable(); 
             $table->enum('status', ['active', 'inactive'])->nullable();
-            $table->dateTime('email_verified_at')->nullable()->default(null);
-            $table->timestamp('last_seen')->nullable();
             $table->string('remember_token')->default('');
             $table->foreignId('profile_picture_id')->nullable()->references('id')->on('attachments')->onDelete('set null');
             
