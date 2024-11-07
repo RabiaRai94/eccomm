@@ -1,4 +1,6 @@
-<style>
+
+<section>
+    <style>
     #sidebarMenu {
         width: 250px;
         background-color: #343a40;
@@ -72,6 +74,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{{ route('users.index') }}" onclick="changeColor(this)">
+                    <i class="fas fa-home"></i> <span>Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{{ route('products.index') }}" onclick="changeColor(this)">
                     <i class="fas fa-home"></i> <span>Products</span>
                 </a>
@@ -141,3 +148,4 @@
         link.style.color = 'white';
     }
 </script>
+</section>

@@ -7,9 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminDashboardController;
 
-Route::get('/', function () {
-    return view('dashboard.navbar');
-});
+
 Route::get('/nav', function () {
     return view('dashboard.navbar');
 });
@@ -21,9 +19,9 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-Route::get('/dashboard', function () {
-    return view('dashboard.navbar');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/admin/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('admin.dashboard');
 Route::resource('users', UserController::class);
 Route::resource('products', ProductController::class);
 Route::middleware('auth')->group(function () {

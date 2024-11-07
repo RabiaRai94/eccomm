@@ -11,7 +11,7 @@ class FrontController extends Controller
     {
         return view('landing.home');
     }
-    public function products(Request $request)
+    public function shopproducts(Request $request)
     {
         return view('landing.products');
     }

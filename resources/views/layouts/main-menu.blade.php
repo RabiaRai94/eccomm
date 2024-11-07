@@ -49,7 +49,7 @@
                               </li>
 
                               <li>
-                                   <a href="{{ route('products') }}">Shop</a>
+                                   <a href="{{ route('shopproducts') }}">Shop</a>
                               </li>
 
                               <li class="label1" data-label1="hot">
@@ -73,7 +73,7 @@
                               <li>
                                    <a href="{{ route('register') }}">Register</a>
                               </li>
-                              <a href="{{ route('users.index') }}">Users</a>
+                              
 
                          </ul>
                     </div>
@@ -171,7 +171,7 @@
                </li>
 
                <li>
-                    <a href="{{ route('products') }}">Shop</a>
+                    <a href="{{ route('shopproducts') }}">Shop</a>
                </li>
 
                <li>
