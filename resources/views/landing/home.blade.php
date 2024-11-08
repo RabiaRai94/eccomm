@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('landing.layouts.master')
 
 @section('title', 'Home')
 @section('description', 'Description')
@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="container-fluid">
-  @include('layouts.cart')
+  @include('landing.layouts.cart')
   <x-slider />
 
 </div>

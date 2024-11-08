@@ -9,14 +9,14 @@ use App\Http\Controllers\AdminDashboardController;
 
 
 Route::get('/nav', function () {
-    return view('dashboard.navbar');
+    return view('admin.dashboard.layout.navbar');
 });
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login'); 
 
 Route::get('/register', function () {
-    return view('auth.register');
+    return view('admin.auth.register');
 })->name('register');
 
 Route::get('/admin/dashboard', function () {

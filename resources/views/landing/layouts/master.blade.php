@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-@include('layouts.head')
+@include('landing.layouts.head')
 
 <body>
 
@@ -8,7 +8,7 @@
 
   <div class="container-fluid">
     <div class="row">
-      @include('layouts.main-menu')
+      @include('landing.layouts.main-menu')
       
 
       <main class="container-fluid">
@@ -17,7 +17,7 @@
 
     </div>
   </div>
-  @include('layouts.footer')
+  @include('landing.layouts.footer')
 
 </body>
 

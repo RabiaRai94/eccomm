@@ -21,6 +21,6 @@ class AdminDashboardController extends Controller
             ],
         ];
 
-        return view('dashboard.home', compact('data'));
+        return view('admin.dashboard.home', compact('data'));
     }
 }

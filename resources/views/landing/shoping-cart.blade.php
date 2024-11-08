@@ -1,4 +1,4 @@
-@extends('layouts.master')
+@extends('landing.layouts.master')
 @section('content')
 <div class="wrap-header-cart js-panel-cart">
      <div class="s-full js-hide-cart"></div>

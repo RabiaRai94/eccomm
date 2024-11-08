@@ -7,7 +7,7 @@
 
     <div class="flex h-screen">
         <!-- Sidebar -->
-       @include('dashboard.navbar')
+       @include('admin.dashboard.layout.navbar')
 
         <!-- Main Content -->
         <div class="flex-1 p-6 ml-64">

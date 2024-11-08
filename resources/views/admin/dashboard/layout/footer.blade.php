@@ -78,10 +78,9 @@
     <!-- Copyright -->
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
         © 2021 Copyright:
-        <a class="text-reset fw-bold" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+        <a class="text-reset fw-bold" href="https://abc.com/">ecomm.com</a>
     </div>
 </footer>
 <!-- Footer -->
 
 <!-- Font Awesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>

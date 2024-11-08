@@ -8,21 +8,21 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminDashboardController;
 
 Route::get('/', function () {
-    return view('dashboard.navbar');
+    return view('admin.dashboard.layout.navbar');
 });
 Route::get('/nav', function () {
-    return view('dashboard.navbar');
+    return view('admin.dashboard.layout.navbar');
 });
 Route::get('/login', function () {
-    return view('auth.login');
+    return view('admin.auth.login');
 })->name('login'); 
 
 Route::get('/register', function () {
-    return view('auth.register');
+    return view('admin.auth.register');
 })->name('register');
 
 Route::get('/dashboard', function () {
-    return view('dashboard.navbar');
+    return view('admin.dashboard.layout.navbar');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::resource('users', UserController::class);
 Route::resource('products', ProductController::class);
