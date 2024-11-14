@@ -18,9 +18,16 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+      
+        'profile_picture',
         'firstname',
+        'lastname',
         'email',
         'password',
+        'phonenumber',
+        'address',
+        'status',
+        'profile_picture_id',
     ];
 
     /**
@@ -44,5 +51,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function profilePicture()
+    {
+        return $this->morphOne(Attachment::class, 'attachable');
     }
 }

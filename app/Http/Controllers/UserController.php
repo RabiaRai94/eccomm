@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Attachment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -13,7 +17,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
-        return view('users.index', compact('users'));
+        return view('admin.users.index', compact('users'));
     }
 
 
@@ -22,16 +26,59 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        return view('admin.users.create');
     }
 
 
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(Request $request)
+    // {
+    //     // Validate all fields
+    //     $validator = Validator::make($request->all(), [
+    //         'firstname' => 'required|string|max:255',
+    //         'lastname' => 'nullable|string|max:255',
+    //         'email' => 'required|email|unique:users,email',
+    //         'password' => 'required|min:6',
+    //         'phonenumber' => 'nullable|string|max:20',
+    //         'address' => 'nullable|string|max:255',
+    //         'postal_code' => 'nullable|string|max:20',
+    //         'status' => 'required|in:active,inactive',
+    //         'profile_picture' => 'nullable|image|max:2048', // max 2MB image
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => $validator->errors()], 422);
+    //     }
+
+    //     // Handle profile picture upload
+    //     $profilePictureId = null;
+    //     if ($request->hasFile('profile_picture')) {
+    //         $path = $request->file('profile_picture')->store('profile_pictures');
+    //         $attachment = Attachment::create(['path' => $path]);
+    //         $profilePictureId = $attachment->id;
+    //     }
+
+    //     // Create the user
+    //     $user = User::create([
+    //         'firstname' => $request->firstname,
+    //         'lastname' => $request->lastname,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //         'phonenumber' => $request->phonenumber,
+    //         'address' => $request->address,
+    //         'postal_code' => $request->postal_code,
+    //         'status' => $request->status,
+    //         'profile_picture_id' => $profilePictureId,
+    //     ]);
+
+    //     return response()->json(['message' => 'User created successfully']);
+    // }
+
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -39,23 +86,72 @@ class UserController extends Controller
             'phonenumber' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:20',
-            'status' => 'nullable|in:active,inactive',
+            'status' => 'required|in:active,inactive',
+            'profile_picture' => 'nullable|file|image|max:2048' 
         ]);
 
-        $user = new User($request->all());
-        $user->password = bcrypt($request->password);
-        $user->save();
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        $profilePictureId = null;
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $path = $file->store('profile_pictures', 'public');
+
+            $attachment = Attachment::create([
+                'path' => $path,
+                'filename' => $file->getClientOriginalName(),
+                'file_name' => $file->getClientOriginalName(),
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
+
+            $profilePictureId = $attachment->id;
+        }
+
+      
+        $user = User::create([
+            'firstname' => $request->input('firstname'),
+            'lastname' => $request->input('lastname'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+            'phonenumber' => $request->input('phonenumber'),
+            'address' => $request->input('address'),
+            'postal_code' => $request->input('postal_code'),
+            'status' => $request->input('status'),
+            'profile_picture_id' => $profilePictureId,
+        ]);
+
+       
+        return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user
+        ], 201);
     }
+    public function getUsersData()
+    {
+        $users = User::select(['id', 'firstname', 'lastname', 'email', 'phonenumber', 'status']);  // Specify fields to retrieve
 
-
+        return datatables()->of($users)
+            ->addColumn('action', function ($user) {
+                return '
+                    <a href="' . route('users.show', $user->id) . '" class="btn btn-info btn-sm">View</a>
+                    <a href="' . route('users.edit', $user->id) . '" class="btn btn-primary btn-sm">Edit</a>
+                    <button onclick="deleteUser(' . $user->id . ')" class="btn btn-danger btn-sm">Delete</button>
+                ';
+            })
+            ->rawColumns(['action'])  
+            ->make(true);
+    }
     /**
      * Display the specified resource.
      */
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        return view('admin.users.show', compact('user'));
     }
 
 
@@ -64,7 +160,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        return view('admin.users.edit', compact('user'));
     }
 
 
@@ -73,24 +169,47 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Validation for all fields
+        $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:6',
             'phonenumber' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:20',
-            'status' => 'nullable|in:active,inactive',
+            'status' => 'required|in:active,inactive',
+            'profile_picture' => 'nullable|image|max:2048',
         ]);
 
-        $user->fill($request->except('password'));
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
-        $user->save();
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        // Handle profile picture update
+        if ($request->hasFile('profile_picture')) {
+            if ($user->profile_picture_id) {
+                $oldAttachment = Attachment::find($user->profile_picture_id);
+                Storage::delete($oldAttachment->path); // Delete old file
+                $oldAttachment->delete();
+            }
+
+            $path = $request->file('profile_picture')->store('profile_pictures');
+            $attachment = Attachment::create(['path' => $path]);
+            $user->profile_picture_id = $attachment->id;
+        }
+
+        // Update the user
+        $user->update([
+            'firstname' => $request->firstname,
+            'lastname' => $request->lastname,
+            'email' => $request->email,
+            'phonenumber' => $request->phonenumber,
+            'address' => $request->address,
+            'postal_code' => $request->postal_code,
+            'status' => $request->status,
+        ]);
+
+        return response()->json(['message' => 'User updated successfully']);
     }
 
 
@@ -102,4 +221,12 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
+//     public function destroy($id)
+// {
+//     $user = User::findOrFail($id);
+//     $user->delete();
+
+//     return response()->json(['message' => 'User deleted successfully.']);
+// }
+
 }

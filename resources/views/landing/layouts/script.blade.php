@@ -22,8 +22,9 @@
 <!-- Include DataTables Bootstrap 4 Integration JS -->
 <!-- Feather Icons -->
 <script src="{{asset('assets/feathericon/all.min.js')}}"></script>
-<script src="{{asset('assets/js/pusher.min.js')}}"></script>
+
 <script src="{{asset('assets/js/slick.custom.js')}}"></script>
+<script src="{{asset('assets/custom/slick.min.js')}}"></script>
 <script src="{{asset('assets/js/main.js')}}"></script>
 
 <!-- Chart.js -->
@@ -37,4 +38,6 @@
 
 <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>

@@ -7,7 +7,6 @@
 
 <div class="container-fluid">
   @include('landing.layouts.cart')
-  <x-slider />
-
+  @include('landing.layouts.slider')
 </div>
 @endsection

@@ -48,10 +48,10 @@
             <!-- Products Column -->
             <div class="col-md-2 col-lg-2 col-xl-2 mb-4 d-flex flex-column">
                 <h6 class="text-uppercase fw-bold mb-4">Products</h6>
-                <p><a href="#!" class="text-reset">Angular</a></p>
-                <p><a href="#!" class="text-reset">React</a></p>
-                <p><a href="#!" class="text-reset">Vue</a></p>
-                <p><a href="#!" class="text-reset">Laravel</a></p>
+                <p><a href="#!" class="text-reset">Men</a></p>
+                <p><a href="#!" class="text-reset">Women</a></p>
+                <p><a href="#!" class="text-reset">Shoe</a></p>
+                <p><a href="#!" class="text-reset">Watches</a></p>
             </div>
 
             <!-- Useful Links Column -->

@@ -3,18 +3,7 @@
 @section('content')
 <div class="container-fluid">
 
-    <nav class="navbar navbar-light bg-light justify-content-between mb-4">
-        <a class="navbar-brand">E-commerce Admin</a>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <x-dropdown-link :href="route('logout')"
-                onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                {{ __('Log Out') }}
-            </x-dropdown-link>
-        </form>
-    </nav>
+   
     <!-- Dashboard Header -->
     <h2>Dashboard Overview</h2>
     <p>Welcome to the admin dashboard for your e-commerce site!</p>

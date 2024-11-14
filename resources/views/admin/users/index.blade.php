@@ -1,11 +1,12 @@
 
-
+@extends('admin.dashboard.layout.master')
 @section('content')
+<section>
     <h1>All Users</h1>
 
     <a href="{{ route('users.create') }}">Create New User</a> <!-- Link to create new user -->
 
-    <table>
+    <table class="table table-striped table-hover">
         <thead>
             <tr>
                 <th>Name</th>
@@ -36,4 +37,5 @@
             @endforeach
         </tbody>
     </table>
+</section>
 @endsection

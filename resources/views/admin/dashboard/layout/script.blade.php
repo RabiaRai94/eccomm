@@ -22,18 +22,13 @@
 <!-- Include DataTables Bootstrap 4 Integration JS -->
 <!-- Feather Icons -->
 <script src="{{asset('assets/feathericon/all.min.js')}}"></script>
-<script src="{{asset('assets/js/pusher.min.js')}}"></script>
-<script src="{{asset('assets/js/slick.custom.js')}}"></script>
-<script src="{{asset('assets/js/main.js')}}"></script>
+<script src="{{asset('assets/feathericon/all.min.js')}}"></script>
+
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
 
-<script>
-        var pusher = new Pusher("{{ config('broadcasting.connections.pusher.key') }}", {
-                cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
-        });
-</script>
+
 
 <script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

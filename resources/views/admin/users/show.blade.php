@@ -1,37 +1,59 @@
-@extends('layout.app')
+@extends('admin.dashboard.layout.master')
 
 @section('content')
-    <h1>User Details</h1>
+<h1 class="text-center mb-5">User List</h1>
 
-    <div>
-        <strong>First Name:</strong> {{ $user->firstname }}
-    </div>
-    <div>
-        <strong>Last Name:</strong> {{ $user->lastname }}
-    </div>
-    <div>
-        <strong>Email:</strong> {{ $user->email }}
-    </div>
-    <div>
-        <strong>Phone Number:</strong> {{ $user->phonenumber }}
-    </div>
-    <div>
-        <strong>Address:</strong> {{ $user->address }}
-    </div>
-    <div>
-        <strong>Postal Code:</strong> {{ $user->postal_code }}
-    </div>
-    <div>
-        <strong>Status:</strong> {{ ucfirst($user->status) }}
-    </div>
+<div class="container">
+    <table id="userTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 
-    <div>
-        <a href="{{ route('users.edit', $user) }}">Edit</a>
-        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit">Delete</button>
-        </form>
-        <a href="{{ route('users.index') }}">Back to List</a>
-    </div>
+<script>
+$(document).ready(function() {
+    $('#userTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route('users.data') }}',
+        columns: [
+            { data: 'id' },
+            { data: 'firstname' },
+            { data: 'lastname' },
+            { data: 'email' },
+            { data: 'phonenumber' },
+            { data: 'status' },
+            { data: 'action', orderable: false, searchable: false }
+        ]
+    });
+});
+
+function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        $.ajax({
+            url: '/users/' + userId,
+            type: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                $('#userTable').DataTable().ajax.reload();
+                alert(response.message);
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    }
+}
+</script>
 @endsection
