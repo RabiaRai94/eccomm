@@ -26,6 +26,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::resource('users', UserController::class);
 Route::get('/users/data', [UserController::class, 'getUsersData'])->name('users.data');
+Route::get('/users/list', [UserController::class, 'getUsers'])->name('users.list');
 Route::resource('products', ProductController::class);
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

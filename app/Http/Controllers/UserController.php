@@ -7,6 +7,7 @@ use App\Models\Attachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -14,12 +15,25 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    // public function index()
+    // {
+    //     $users = User::all();
+    //     return view('admin.users.index', compact('users'));
+    // }
+    public function index(Request $request)
     {
-        $users = User::all();
-        return view('admin.users.index', compact('users'));
+        if ($request->ajax()) {
+            $users = User::query();
+            return datatables()->of($users)
+                ->addColumn('actions', function ($user) {
+                    return view('admin.partials.actions', compact('user'))->render();
+                })
+                ->rawColumns(['actions'])
+                ->make(true);
+        }
+        return view('admin.users.index');
     }
-
+    
 
     /**
      * Show the form for creating a new resource.
@@ -87,7 +101,7 @@ class UserController extends Controller
             'address' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:20',
             'status' => 'required|in:active,inactive',
-            'profile_picture' => 'nullable|file|image|max:2048' 
+            'profile_picture' => 'nullable|file|image|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -112,7 +126,7 @@ class UserController extends Controller
             $profilePictureId = $attachment->id;
         }
 
-      
+
         $user = User::create([
             'firstname' => $request->input('firstname'),
             'lastname' => $request->input('lastname'),
@@ -125,11 +139,24 @@ class UserController extends Controller
             'profile_picture_id' => $profilePictureId,
         ]);
 
-       
+
         return response()->json([
             'message' => 'User created successfully.',
             'user' => $user
         ], 201);
+    }
+    public function getUsers()
+    {
+        $users = User::query(); 
+        return DataTables::of($users)
+            ->addColumn('actions', function ($user) {
+                return '
+                <a href="' . route('users.edit', $user->id) . '" class="btn btn-sm btn-primary">Edit</a>
+                <button class="btn btn-sm btn-danger" onclick="deleteUser(' . $user->id . ')">Delete</button>
+            ';
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
     public function getUsersData()
     {
@@ -143,7 +170,7 @@ class UserController extends Controller
                     <button onclick="deleteUser(' . $user->id . ')" class="btn btn-danger btn-sm">Delete</button>
                 ';
             })
-            ->rawColumns(['action'])  
+            ->rawColumns(['action'])
             ->make(true);
     }
     /**
@@ -221,12 +248,12 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
-//     public function destroy($id)
-// {
-//     $user = User::findOrFail($id);
-//     $user->delete();
+    //     public function destroy($id)
+    // {
+    //     $user = User::findOrFail($id);
+    //     $user->delete();
 
-//     return response()->json(['message' => 'User deleted successfully.']);
-// }
+    //     return response()->json(['message' => 'User deleted successfully.']);
+    // }
 
 }

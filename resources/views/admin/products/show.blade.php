@@ -31,5 +31,8 @@
         Add Variant
     </button>
     @include('admin.products.productvarientmodal')
+    
+
+
 </div>
 @endsection

@@ -3,8 +3,7 @@ define('TEST','123');
 class FilePathEnum
 {
     const PROFILE_IMAGE = "profile/";
-    const GROUP_PROFILE = "group-profile/";
-    const CHAT_MEDIA = "chat-media/";
+   
 }
 
 class ProductSizeEnum
@@ -14,6 +13,14 @@ class ProductSizeEnum
     const MEDIUM = "3";
     const LARGE = "4";
     const EXTRA_LARGE = "5";
+
+    // const LIST = [
+    //     "EXTRA_SMALL" =>1 ,
+    //     "SMALL" =>2 ,
+    //     "MEDIUM" =>3 ,
+    //     "LARGE" =>4 ,
+    //     "EXTRA_LARGE" =>5 ,
+    // ]
 }
 class PaymentMethodEnum
 {

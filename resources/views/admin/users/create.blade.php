@@ -75,43 +75,45 @@
 <div id="ajaxResponse" class="mt-3 text-center"></div>
 
 <script>
-    function submitAjaxForm() {
-        let formData = new FormData(document.getElementById('ajaxForm'));
+   function submitAjaxForm() {
+    let formData = new FormData(document.getElementById('ajaxForm'));
 
-        fetch("{{ route('users.store') }}", {
-            method: "POST",
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw response;
-            }
-            return response.json();
-        })
-        .then(data => {
-           
-            document.getElementById('ajaxResponse').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-            
-            document.getElementById('ajaxForm').reset();
-        })
-        .catch(error => {
-            if (error.status === 422) {
-                error.json().then(errors => {
-                    Object.keys(errors.errors).forEach((key) => {
-                        let errorDiv = document.getElementById(`${key}_error`);
-                        if (errorDiv) {
-                            errorDiv.innerText = errors.errors[key][0];
-                        }
-                    });
+    fetch("{{ route('users.store') }}", {
+        method: "POST",
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw response;
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById('ajaxResponse').innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+        document.getElementById('ajaxForm').reset();
+
+        // Reload DataTable
+        $('#usersTable').DataTable().ajax.reload();
+    })
+    .catch(error => {
+        if (error.status === 422) {
+            error.json().then(errors => {
+                Object.keys(errors.errors).forEach((key) => {
+                    let errorDiv = document.getElementById(`${key}_error`);
+                    if (errorDiv) {
+                        errorDiv.innerText = errors.errors[key][0];
+                    }
                 });
-            } else {
-                document.getElementById('ajaxResponse').innerHTML = `<div class="alert alert-danger">Something went wrong. Please try again.</div>`;
-            }
-        });
-    }
+            });
+        } else {
+            document.getElementById('ajaxResponse').innerHTML = `<div class="alert alert-danger">Something went wrong. Please try again.</div>`;
+        }
+    });
+}
+
 </script>
 @endsection
