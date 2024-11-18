@@ -18,6 +18,7 @@ class ProductVariant extends Model
     {
         return $this->belongsTo(Product::class);
     }
+  
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachable');

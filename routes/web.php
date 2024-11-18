@@ -48,7 +48,9 @@ Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about-us');
 Route::resource('products', ProductController::class);
 
 Route::post('/variants/store', [VariantController::class, 'store'])->name('variants.store');
-
+Route::get('products/{productId}/variants', [VariantController::class, 'fetchVariants'])->name('variants.fetch');
+Route::delete('/variants/{id}', [VariantController::class, 'destroy'])->name('variants.destroy');
+Route::put('variants/{id}', [VariantController::class, 'update'])->name('variants.update');
 Route::get('/categories', [ProductController::class, 'getCategories'])->name('categories.get');
 
 

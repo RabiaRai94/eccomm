@@ -10,7 +10,7 @@
                 <th>Name</th>
                 <th>Description</th>
                 <th>Category</th>
-                <th>Variants</th>
+                <!-- <th>Variants</th> -->
                 <th>Actions</th>
             </tr>
         </thead>
@@ -20,7 +20,7 @@
                 <td>{{ $product->name }}</td>
                 <td>{{ $product->description }}</td>
                 <td>{{ $product->category->name ?? 'N/A' }}</td>
-                <td>
+                <!-- <td>
                     @foreach ($product->variants as $variant)
                     <div class="mb-2">
                         <p>
@@ -44,7 +44,7 @@
                             data-bs-target="#addVariantModal" data-product-id="{{ $product->id }}">
                         Add Variant
                     </button>
-                </td>
+                </td> -->
                 <td>
                     <a href="{{ route('products.edit', $product->id) }}" class="btn btn-secondary">Edit</a>
                     <a href="{{ route('products.show', $product->id) }}" class="btn btn-secondary">Show</a>

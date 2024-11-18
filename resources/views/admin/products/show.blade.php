@@ -27,12 +27,63 @@
             </div>
         </div>
     </div>
-    <button type="button" class="btn btn-success mt-4" data-bs-toggle="modal" data-bs-target="#addVariantModal">
+    <div><button type="button" class="btn btn-success add-variant-btn" data-bs-toggle="modal" data-bs-target="#addVariantModal" data-product-id="{{ $product->id }}">
         Add Variant
     </button>
+    </div>
+    <div class="mt-5">
+        <table id="variantsTable" class="table table-borderless">
+            <thead>
+                <tr>
+                    <th>Variants</th>
+                </tr>
+            </thead>
+            <tbody class="d-flex flex-wrap justify-center"></tbody>
+        </table>
+    </div>
+
     @include('admin.products.productvarientmodal')
-    
+
 
 
 </div>
+<script>
+    $(document).ready(function() {
+        $('#variantsTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('variants.fetch', $product->id) }}",
+            columns: [{
+                data: 'card',
+                name: 'card',
+                orderable: false,
+                searchable: false,
+            }, ],
+            dom: '<"top"f>rt<"bottom"lp><"clear">', 
+            pageLength: 10,
+        });
+    });
+
+    $(document).on('click', '.delete-variant-btn', function() {
+        const id = $(this).data('id');
+
+        if (!confirm('Are you sure?')) return;
+
+        $.ajax({
+            url: `/variants/${id}`,
+            type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}',
+            },
+            success: function(response) {
+                alert(response.message);
+                $('#variantsTable').DataTable().ajax.reload();
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                alert('An error occurred.');
+            },
+        });
+    });
+</script>
 @endsection
