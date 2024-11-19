@@ -54,13 +54,14 @@ Route::put('variants/{id}', [VariantController::class, 'update'])->name('variant
 Route::get('/categories', [ProductController::class, 'getCategories'])->name('categories.get');
 
 
+Route::resource('categories', ProductCategoryController::class);
 
-Route::get('/categories', [ProductCategoryController::class, 'index'])->name('categories.index');          
-Route::get('/categories/create', [ProductCategoryController::class, 'create'])->name('categories.create');  
-Route::post('/categories', [ProductCategoryController::class, 'store'])->name('categories.store');         
-Route::get('/categories/{id}/edit', [ProductCategoryController::class, 'edit'])->name('categories.edit');   
-Route::put('/categories/{id}', [ProductCategoryController::class, 'update'])->name('categories.update');    
-Route::delete('/categories/{id}', [ProductCategoryController::class, 'destroy'])->name('categories.destroy'); 
+// Route::get('/categories', [ProductCategoryController::class, 'index'])->name('categories.index');          
+// Route::get('/categories/create', [ProductCategoryController::class, 'create'])->name('categories.create');  
+// Route::post('/categories', [ProductCategoryController::class, 'store'])->name('categories.store');         
+// Route::get('/categories/{id}/edit', [ProductCategoryController::class, 'edit'])->name('categories.edit');   
+// Route::put('/categories/{id}', [ProductCategoryController::class, 'update'])->name('categories.update');    
+// Route::delete('/categories/{id}', [ProductCategoryController::class, 'destroy'])->name('categories.destroy'); 
 
 
 require __DIR__.'/auth.php';

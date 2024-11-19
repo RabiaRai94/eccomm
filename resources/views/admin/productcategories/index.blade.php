@@ -4,10 +4,12 @@
 <h1 class="text-center mb-5">Product Categories</h1>
 
 <div class="mb-3">
-    <a href="{{ route('categories.create') }}" class="btn btn-success">Create New Category</a>
+    <a href="{{ route('categories.create') }}" class="btn btn-success">
+        <i class="fa fa-plus"></i> Create New Category
+    </a>
 </div>
 
-<table class="table" id="categoryTable">
+<table class="table table-bordered" id="categoryTable">
     <thead>
         <tr>
             <th>#</th>
@@ -16,35 +18,24 @@
         </tr>
     </thead>
     <tbody>
-        @foreach ($categories as $category)
-            <tr id="category_{{ $category->id }}">
-                <td>{{ $loop->iteration }}</td>
-                <td>{{ $category->name }}</td>
-                <td>
-                    <a href="{{ route('categories.edit', $category->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCategory({{ $category->id }})">Delete</button>
-                </td>
-            </tr>
-        @endforeach
+        <!-- DataTable will populate this dynamically -->
     </tbody>
 </table>
 
 <script>
-function deleteCategory(id) {
-    if (confirm('Are you sure you want to delete this category?')) {
-        $.ajax({
-            url: `/categories/${id}`,
-            type: 'DELETE',
-            headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-            success: function(response) {
-                alert(response.message);
-                $(`#category_${id}`).remove();
-            },
-            error: function() {
-                alert('An error occurred');
-            }
-        });
-    }
-}
+$(document).ready(function () {
+    $('#categoryTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('categories.index') }}", 
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'name', name: 'name' },
+            { data: 'actions', name: 'actions', orderable: false, searchable: false }
+        ]
+    });
+});
+
+
 </script>
 @endsection
