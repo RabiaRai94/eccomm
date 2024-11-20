@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductCategory;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
@@ -24,7 +25,62 @@ class ProductController extends Controller
         
         return view('admin.products.index');
     }
-
+    public function getLandingProducts()
+    {
+        $products = Product::with(['category', 'variants.attachments'])->get();
+    
+        return DataTables::of($products)
+            ->addColumn('card', function ($product) {
+                $cardHtml = "
+                    <div class='card mb-3' style='width: 18rem; margin: 10px;'>
+                        <div class='card-body text-center'>
+                            <h5 class='card-title'>{$product->name}</h5>
+                            <p class='card-text'>Category: {$product->category->name}</p>
+                            <div class='d-flex flex-wrap justify-content-center'>";
+    
+                foreach ($product->variants as $variant) {
+                    $imagePath = $variant->attachments->first()->file_path ?? 'default-image.jpg';
+                    $cardHtml .= "
+                        <div class='card m-2' style='width: 12rem;'>
+                            <img src='" . asset("storage/{$imagePath}") . "' class='card-img-top' alt='{$variant->size}'  style='height: 250px; object-fit: cover;'>
+                            <div class='card-body'>
+                                <h6 class='card-subtitle mb-2 text-muted'>Size: {$variant->size}</h6>
+                                <p class='card-text'>Price: {$variant->price}</p>
+                                <p class='card-text'>Stock: {$variant->stock}</p>
+                            </div>
+                        </div>";
+                }
+           
+                $cardHtml .= "</div>
+                        </div>
+                    </div>";
+    
+                return $cardHtml;
+            })
+            ->rawColumns(['card'])
+            ->make(true);
+    }
+    
+    
+    public function getProducts()
+    {
+        $products = Product::with('variants')->get(); 
+    
+        return DataTables::of($products)
+            ->addColumn('variants', function ($product) {
+                $variantHtml = '';
+                foreach ($product->variants as $variant) {
+                    $variantHtml .= "<div class='card'>
+                                        <h5>{$variant->name}</h5>
+                                        <p>Price: {$variant->price}</p>
+                                     </div>";
+                }
+                return $variantHtml;
+            })
+            ->rawColumns(['variants']) 
+            ->make(true);
+    }
+    
     public function create()
     {
         $categories = ProductCategory::all();

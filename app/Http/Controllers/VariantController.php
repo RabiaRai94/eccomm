@@ -18,7 +18,7 @@ class VariantController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'attachments' => 'nullable|array',
-            'attachments.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'attachments.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         $variant = ProductVariant::create([

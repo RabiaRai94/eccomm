@@ -27,7 +27,7 @@ $(document).ready(function () {
     $('#categoryTable').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('categories.index') }}", 
+        ajax: "{{ route('categories.index') }}", // Ensure this URL returns JSON
         columns: [
             { data: 'id', name: 'id' },
             { data: 'name', name: 'name' },
@@ -36,6 +36,21 @@ $(document).ready(function () {
     });
 });
 
-
+function deleteCategory(id) {
+    if (confirm('Are you sure you want to delete this category?')) {
+        $.ajax({
+            url: `/categories/${id}`,
+            type: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            success: function (response) {
+                alert(response.message);
+                $('#categoryTable').DataTable().ajax.reload(); 
+            },
+            error: function (xhr) {
+                alert(xhr.responseJSON.message || 'An error occurred');
+            }
+        });
+    }
+}
 </script>
 @endsection

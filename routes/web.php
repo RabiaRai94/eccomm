@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 Route::get('/login', function () {
     return view('admin.auth.login');
-})->name('login'); 
+})->name('login');
 
 Route::get('/register', function () {
     return view('admin.auth.register');
@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
 
 // Landing pages
 // In routes/web.php
-  // Adjust based on your controller and method
+// Adjust based on your controller and method
 
 Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
@@ -46,6 +46,8 @@ Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-
 Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about-us');
 
 Route::resource('products', ProductController::class);
+Route::get('/landing-products', [ProductController::class, 'getLandingProducts'])->name('landing.products.data');
+
 
 Route::post('/variants/store', [VariantController::class, 'store'])->name('variants.store');
 Route::get('products/{productId}/variants', [VariantController::class, 'fetchVariants'])->name('variants.fetch');
@@ -55,6 +57,9 @@ Route::get('/categories', [ProductController::class, 'getCategories'])->name('ca
 
 
 Route::resource('categories', ProductCategoryController::class);
+Route::get('/test', function () {
+    return view('test');
+});
 
 // Route::get('/categories', [ProductCategoryController::class, 'index'])->name('categories.index');          
 // Route::get('/categories/create', [ProductCategoryController::class, 'create'])->name('categories.create');  
@@ -64,6 +69,6 @@ Route::resource('categories', ProductCategoryController::class);
 // Route::delete('/categories/{id}', [ProductCategoryController::class, 'destroy'])->name('categories.destroy'); 
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
