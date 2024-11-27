@@ -19,7 +19,6 @@
                     <div class="header-cart-item-img">
                         <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}">
                     </div>
-
                     <div class="header-cart-item-txt p-t-8">
                         <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
                             {{ $item->product->name }}
@@ -38,11 +37,10 @@
                 </div>
 
                 <div class="header-cart-buttons flex-w w-full">
-                    <a href="{{ route('cart.view') }}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+                    <a href="" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
                         View Cart
                     </a>
-
-                    <a href="{{ route('checkout.index') }}" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                    <a href="" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
                         Check Out
                     </a>
                 </div>
@@ -61,7 +59,8 @@
     </div>
 </div>
 
-<form class="bg0 p-t-75 p-b-85">
+<form class="bg0 p-t-75 p-b-85" method="POST" action="">
+    @csrf
     <div class="container">
         <div class="row">
             <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
@@ -84,24 +83,24 @@
                                 </td>
                                 <td class="column-2">{{ $item->product->name }}</td>
                                 <td class="column-3">${{ number_format($item->product->price, 2) }}</td>
-                                <td class="column-4">
-                                    <div class="wrap-num-product flex-w m-l-auto m-r-0">
-                                        <input class="mtext-104 cl3 txt-center num-product" type="number" name="quantity[{{ $item->id }}]" value="{{ $item->quantity }}">
-                                    </div>
+                                <td class="column-4">{{ $item->quantity }}</td>
+                                <td class="column-5">${{ number_format(($item->product->price ?? $item->price) * $item->quantity, 2) }}</td>
+                                <td>
+                                    <!-- Using the unique identifier as a fallback -->
+                                    <button data-id="{{ $item->id }}">Remove</button>
+                                    <form action="{{ route('cart.remove' }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form>
                                 </td>
-                                <td class="column-5">${{ number_format($item->product->price * $item->quantity, 2) }}</td>
                             </tr>
                             @endforeach
+
                         </table>
                     </div>
 
                     <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-                        <div class="flex-w flex-m m-r-20 m-tb-5">
-                            <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-                            <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-                                Apply coupon
-                            </div>
-                        </div>
                         <button class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
                             Update Cart
                         </button>
@@ -117,7 +116,7 @@
                             <span class="stext-110 cl2">Subtotal:</span>
                         </div>
                         <div class="size-209">
-                            <span class="mtext-110 cl2">${{ number_format($total, 2) }}</span>
+                            <span id="subtotal" class="mtext-110 cl2">${{ number_format($total, 2) }}</span>
                         </div>
                     </div>
                     <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
@@ -128,4 +127,33 @@
         </div>
     </div>
 </form>
+
+<script>
+    function updateQuantity(itemId, change) {
+        let quantityInput = document.getElementById('quantity-' + itemId);
+        let newQuantity = parseInt(quantityInput.value) + change;
+
+        if (newQuantity < 1) return; // prevent negative values
+
+        quantityInput.value = newQuantity;
+        let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
+        document.getElementById('total-' + itemId).innerText = (newQuantity * pricePerUnit).toFixed(2);
+        updateSubtotal();
+    }
+
+    function updateSubtotal() {
+        let subtotal = 0;
+        document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
+            subtotal += parseFloat(totalElement.innerText);
+        });
+        document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+    }
+    document.querySelectorAll('.btn-danger').forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to remove this item?')) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
 @endsection

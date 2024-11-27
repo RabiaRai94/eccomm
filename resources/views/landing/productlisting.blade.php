@@ -45,7 +45,6 @@
                justify-content: center;
           }
 
-          /* Hide table borders */
           #products-table {
                border: none;
                width: 100%;
@@ -61,7 +60,7 @@
                padding: 0;
           }
 
-          .card-img-top img{
+          .card-img-top img {
                width: 100%;
                height: 150px;
                object-fit: cover;
@@ -97,11 +96,32 @@
                          searchable: false,
                     }, ],
                     drawCallback: function() {
-                         // Ensure that cards are rendered in flex-wrap layout
                          $('#products-table tbody').addClass('cards-container');
                     },
                     paging: true,
-                    pageLength: 10, // Number of cards per page
+                    pageLength: 10,
+               });
+          });
+
+          $(document).on('click', '.add-to-cart', function() {
+               let productId = $(this).data('product-id');
+               let variantId = $(this).data('variant-id');
+               let quantity = 1;
+
+               $.ajax({
+                    url: '/cart/add',
+                    method: 'POST',
+                    data: {
+                         _token: '{{ csrf_token() }}',
+                         variant_id: variantId,
+                         quantity: quantity
+                    },
+                    success: function(response) {
+                         alert(response.message);
+                    },
+                    error: function() {
+                         alert('Failed to add product to cart.');
+                    }
                });
           });
      </script>

@@ -8,7 +8,6 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // Sample data, replace with actual queries from your database
         $data = [
             'totalRevenue' => 25000,
             'orders' => 320,

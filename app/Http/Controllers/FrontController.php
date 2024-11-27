@@ -52,7 +52,7 @@ class FrontController extends Controller
     }
     public function shopingcarts(Request $request)
     {
-        return view('landing.shoping-cart');
+        return view('landing.cart.shoping-cart');
     }
     public function blogs(Request $request)
     {

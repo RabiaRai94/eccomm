@@ -28,50 +28,53 @@ class ProductController extends Controller
     public function getLandingProducts(Request $request)
     {
         $query = Product::with(['category', 'variants.attachments']);
-    
+
         if ($request->has('categories') && !empty($request->categories)) {
             $query->whereIn('category_id', $request->categories);
         }
-    
+
         $products = $query->get();
         return DataTables::of($products)
             ->addColumn('card', function ($product) {
                 $cardHtml = "
-                    <div class='card mb-3' style='width: 18rem; margin: 10px;'>
-                        <div class='card-body text-center'>
-                            <h5 class='card-title'>{$product->name}</h5>
-                            <p class='card-text'>Category: {$product->category->name}</p>
-                            
-                            <div class='d-flex flex-wrap justify-content-center'>";
-    
+                <div class='card mb-3' style='width: 18rem; margin: 10px;'>
+                    <div class='card-body text-center'>
+                        <h5 class='card-title'>{$product->name}</h5>
+                        <p class='card-text'>Category: {$product->category->name}</p>
+                        <div class='d-flex flex-wrap justify-content-center'>";
+
                 foreach ($product->variants as $variant) {
                     $imagePath = $variant->attachments->first()->file_path ?? 'default-image.jpg';
                     $cardHtml .= "
-                        <div class='card m-2' style='width: 12rem;'>
-                            <img src='" . asset("storage/{$imagePath}") . "' class='card-img-top' alt='{$variant->size}' style='height: 250px; object-fit: cover;'>
-                            <div class='card-body'>
-                                <h6 class='card-subtitle mb-2 text-muted'>Size: {$variant->size}</h6>
-                                <p class='card-text'>Price: {$variant->price}</p>
-                                <p class='card-text'>Stock: {$variant->stock}</p>
-                                <form action='" . route('shoping-cart', ['product' => $product->id]) . "' method='POST'>
-                                    " . csrf_field() . "
-                                    <button type='submit' class='btn btn-primary btn-sm'>Add to Cart</button>
-                                </form>
-                            </div>
-                        </div>";
-                }
-    
-                $cardHtml .= "</div>
+                    <div class='card m-2' style='width: 12rem;'>
+                        <img src='" . asset("storage/{$imagePath}") . "' class='card-img-top' alt='{$variant->size}' style='height: 250px; object-fit: cover;'>
+                        <div class='card-body'>
+                            <h6 class='card-subtitle mb-2 text-muted'>Size: {$variant->size}</h6>
+                            <p class='card-text'>Price: {$variant->price}</p>
+                            <p class='card-text'>Stock: {$variant->stock}</p>
+                            <button 
+                                class='btn btn-primary btn-sm add-to-cart' 
+                                data-product-id='{$product->id}' 
+                                data-variant-id='{$variant->id}' 
+                                data-variant-size='{$variant->size}' 
+                                data-variant-price='{$variant->price}'>
+                                Add to Cart
+                            </button>
                         </div>
                     </div>";
-    
+                }
+
+                $cardHtml .= "</div>
+                    </div>
+                </div>";
                 return $cardHtml;
             })
+
             ->rawColumns(['card'])
             ->make(true);
     }
-    
-    
+
+
 
 
 

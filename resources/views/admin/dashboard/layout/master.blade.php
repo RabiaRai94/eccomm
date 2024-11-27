@@ -88,7 +88,7 @@
                 </form>
             </nav>
             <!-- Dashboard Content -->
-            @yield('content') 
+            @yield('content')
 
             <!-- Include Footer -->
             @include('admin.dashboard.layout.footer')
@@ -96,6 +96,68 @@
     </div>
     @include('admin.dashboard.layout.script')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @section('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.add-to-cart').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const productId = button.getAttribute('data-product-id');
+                    const variantId = button.getAttribute('data-variant-id');
+                    const size = button.getAttribute('data-variant-size');
+                    const price = button.getAttribute('data-variant-price');
+
+                    fetch('{{ route("cart.add") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                variant_id: variantId,
+                                size: size,
+                                price: price
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                updateCartUI(data.cart);
+                            } else {
+                                alert('Failed to add product to cart.');
+                            }
+                        });
+                });
+            });
+        });
+
+        function updateCartUI(cart) {
+            const cartContainer = document.querySelector('.header-cart-wrapitem');
+            cartContainer.innerHTML = '';
+            let total = 0;
+
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                cartContainer.innerHTML += `
+            <li class="header-cart-item flex-w flex-t m-b-12">
+                <div class="header-cart-item-img">
+                    <img src="${item.image}" alt="${item.name}">
+                </div>
+                <div class="header-cart-item-txt p-t-8">
+                    <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                        ${item.name} - ${item.size}
+                    </a>
+                    <span class="header-cart-item-info">
+                        ${item.quantity} x $${item.price}
+                    </span>
+                </div>
+            </li>`;
+            });
+
+            document.querySelector('.header-cart-total').innerHTML = `Total: $${total.toFixed(2)}`;
+        }
+    </script>
+    @endsection
 
 
 </body>
