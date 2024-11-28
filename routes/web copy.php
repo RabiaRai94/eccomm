@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 // Landing pages
 Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
-Route::get('/shoping-cart', [FrontController::class, 'shopingcarts'])->name('shoping-cart');
+Route::get('/shopping-cart', [FrontController::class, 'shoppingcarts'])->name('shopping-cart');
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
 Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-us');
 Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about-us');

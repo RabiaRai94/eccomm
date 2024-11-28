@@ -71,11 +71,11 @@
                     </div>
 
                     <div class="header-cart-buttons flex-w w-full">
-                         <a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
+                         <a href="shopping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
                               View Cart
                          </a>
 
-                         <a href="shoping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                         <a href="shopping-cart.html" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
                               Check Out
                          </a>
                     </div>
@@ -94,13 +94,13 @@
           </a>
 
           <span class="stext-109 cl4">
-               Shoping Cart
+               Shopping Cart
           </span>
      </div>
 </div>
 
 
-<!-- Shoping Cart -->
+<!-- Shopping Cart -->
 <form class="bg0 p-t-75 p-b-85">
      <div class="container">
           <div class="row">

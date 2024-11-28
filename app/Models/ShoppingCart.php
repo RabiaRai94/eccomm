@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ShoppingCart extends Model
 {
     use HasFactory;
-    protected $table = 'shopping_cart';
+    protected $table = 'shopping_carts';
   
     protected $fillable = ['user_id', 'product_id', 'variant_id', 'quantity', 'price'];
     public function user()

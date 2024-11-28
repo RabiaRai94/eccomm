@@ -50,9 +50,9 @@ class FrontController extends Controller
     {
         return view('landing.products');
     }
-    public function shopingcarts(Request $request)
+    public function shoppingcarts(Request $request)
     {
-        return view('landing.cart.shoping-cart');
+        return view('landing.cart.shopping-cart');
     }
     public function blogs(Request $request)
     {

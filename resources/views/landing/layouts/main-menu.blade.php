@@ -116,7 +116,7 @@
                               </li>
 
                               <li class="label1" data-label1="hot">
-                                   <a href="{{ route('shoping-cart') }}">Shoping-Cart</a>
+                                   <a href="{{ route('shopping-cart') }}">Shopping-Cart</a>
                               </li>
 
                               <li>
@@ -233,7 +233,7 @@
                </li>
 
                <li>
-                    <a href="{{ route('shoping-cart') }}" class="label1 rs1" data-label1="hot">Shopping Cart</a>
+                    <a href="{{ route('shopping-cart') }}" class="label1 rs1" data-label1="hot">Shopping Cart</a>
                </li>
 
                <li>

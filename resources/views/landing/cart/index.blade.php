@@ -13,128 +13,105 @@
         </div>
 
         <div class="header-cart-content flex-w js-pscroll">
+            @if($cartItems->isEmpty())
+            <p class="text-center w-100 p-4">Your cart is currently empty.</p>
+            @else
             <ul class="header-cart-wrapitem w-full">
                 @foreach($cartItems as $item)
                 <li class="header-cart-item flex-w flex-t m-b-12">
                     <div class="header-cart-item-img">
-                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}">
+                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" style="width: 80px; height: 80px; object-fit: cover;">
                     </div>
                     <div class="header-cart-item-txt p-t-8">
                         <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
                             {{ $item->product->name }}
                         </a>
                         <span class="header-cart-item-info">
-                            {{ $item->quantity }} x ${{ number_format($item->product->price, 2) }}
+                            {{ $item->quantity }} x ${{ number_format($item->price, 2) }}
                         </span>
                     </div>
                 </li>
                 @endforeach
             </ul>
-
-            <div class="w-full">
-                <div class="header-cart-total w-full p-tb-40">
-                    Total: ${{ number_format($total, 2) }}
-                </div>
-
-                <div class="header-cart-buttons flex-w w-full">
-                    <a href="" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
-                        View Cart
-                    </a>
-                    <a href="" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
-                        Check Out
-                    </a>
-                </div>
+            <div class="header-cart-total w-full p-tb-40">
+                Total: ${{ number_format($total, 2) }}
             </div>
+            @endif
+
         </div>
     </div>
 </div>
 
 <div class="container">
-    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-        <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+    <div class="bread-crumb bg-light p-3 rounded mb-3 mt-5">
+        <a href="/" class="text-decoration-none text-dark">
             Home
-            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+            <i class="fa fa-angle-right mx-2"></i>
         </a>
-        <span class="stext-109 cl4">Shopping Cart</span>
+        <span class="text-muted">Shopping Cart</span>
     </div>
-</div>
 
-<form class="bg0 p-t-75 p-b-85" method="POST" action="">
-    @csrf
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-                <div class="m-l-25 m-r--38 m-lr-0-xl">
-                    <div class="wrap-table-shopping-cart">
-                        <table class="table-shopping-cart">
-                            <tr class="table_head">
-                                <th class="column-1">Product</th>
-                                <th class="column-2"></th>
-                                <th class="column-3">Price</th>
-                                <th class="column-4">Quantity</th>
-                                <th class="column-5">Total</th>
-                            </tr>
-                            @foreach($cartItems as $item)
-                            <tr class="table_row">
-                                <td class="column-1">
-                                    <div class="how-itemcart1">
-                                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}">
-                                    </div>
-                                </td>
-                                <td class="column-2">{{ $item->product->name }}</td>
-                                <td class="column-3">${{ number_format($item->product->price, 2) }}</td>
-                                <td class="column-4">{{ $item->quantity }}</td>
-                                <td class="column-5">${{ number_format(($item->product->price ?? $item->price) * $item->quantity, 2) }}</td>
-                                <td>
-                                    <!-- Using the unique identifier as a fallback -->
-                                    <button data-id="{{ $item->id }}">Remove</button>
-                                    <form action="{{ route('cart.remove' }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Remove</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-
-                        </table>
-                    </div>
-
-                    <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-                        <button class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-                            Update Cart
-                        </button>
-                    </div>
-                </div>
+    <div class="bg-white p-4 shadow-sm rounded">
+        @if($cartItems->isEmpty())
+        <div class="text-center py-5">
+            <h3>Your Cart is Empty</h3>
+            <p><a href="/" class="btn btn-outline-primary">Continue Shopping</a></p>
+        </div>
+        @else
+        <form method="POST" action="">
+            @csrf
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col">Product</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($cartItems as $item)
+                        <tr>
+                            <td>
+                                <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                            </td>
+                            <td>{{ $item->product->name }}</td>
+                            <td>${{ number_format($item->product->price, 2) }}</td>
+                            <td>
+                                <input type="number" id="quantity-{{ $item->id }}" name="quantity[{{ $item->id }}]" class="form-control" value="{{ $item->quantity }}" min="1" onchange="updateQuantity('{{ $item->id }}', 0)">
+                            </td>
+                            <td id="total-{{ $item->id }}" data-price="{{ $item->product->price }}">${{ number_format($item->product->price * $item->quantity, 2) }}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger" onclick="removeFromCart('{{ route('cart.remove', $item->id) }}')">Remove</button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-
-            <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-                <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-                    <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
-                    <div class="flex-w flex-t bor12 p-b-13">
-                        <div class="size-208">
-                            <span class="stext-110 cl2">Subtotal:</span>
-                        </div>
-                        <div class="size-209">
-                            <span id="subtotal" class="mtext-110 cl2">${{ number_format($total, 2) }}</span>
-                        </div>
-                    </div>
-                    <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-                        Proceed to Checkout
-                    </button>
-                </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-info">Update Cart</button>
+            </div>
+        </form>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Cart Totals</h5>
+                <p class="card-text"><strong>Subtotal: </strong><span id="subtotal">${{ number_format($total, 2) }}</span></p>
+                <a href="" class="btn btn-success ">Proceed to Checkout</a>
             </div>
         </div>
+        @endif
     </div>
-</form>
+</div>
 
 <script>
     function updateQuantity(itemId, change) {
         let quantityInput = document.getElementById('quantity-' + itemId);
         let newQuantity = parseInt(quantityInput.value) + change;
-
-        if (newQuantity < 1) return; // prevent negative values
-
+        if (newQuantity < 1) return;
         quantityInput.value = newQuantity;
         let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
         document.getElementById('total-' + itemId).innerText = (newQuantity * pricePerUnit).toFixed(2);
@@ -148,12 +125,24 @@
         });
         document.getElementById('subtotal').innerText = subtotal.toFixed(2);
     }
-    document.querySelectorAll('.btn-danger').forEach(button => {
-        button.addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to remove this item?')) {
-                e.preventDefault();
-            }
-        });
-    });
+
+
+    function removeFromCart(url) {
+        if (confirm('Are you sure you want to remove this item?')) {
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to remove item.');
+                }
+            }).catch(error => console.error('Error:', error));
+        }
+    }
 </script>
 @endsection

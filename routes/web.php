@@ -40,12 +40,12 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
-// Route::get('/shoping-cart', [FrontController::class, 'shopingcarts'])->name('shoping-cart');
-//  Route::post('/shoping-cart/{product}', [ShoppingCartController::class, 'addToCart'])->name('shoping-cart');
+// Route::get('/shopping-cart', [FrontController::class, 'shoppingcarts'])->name('shopping-cart');
+//  Route::post('/shopping-cart/{product}', [ShoppingCartController::class, 'addToCart'])->name('shopping-cart');
 
-Route::get('/shoping-cart', [ShoppingCartController::class, 'index'])->name('shoping-cart');
+Route::get('/shopping-cart', [ShoppingCartController::class, 'index'])->name('shopping-cart');
 Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('cart.add');
-// Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
+ Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
  Route::delete('/cart/remove/{key}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
 
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
