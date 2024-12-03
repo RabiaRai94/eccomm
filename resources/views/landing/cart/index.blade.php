@@ -1,6 +1,11 @@
 @extends('landing.layouts.master')
 
 @section('content')
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+</head>
 <div class="wrap-header-cart js-panel-cart">
     <div class="s-full js-hide-cart"></div>
 
@@ -20,7 +25,8 @@
                 @foreach($cartItems as $item)
                 <li class="header-cart-item flex-w flex-t m-b-12">
                     <div class="header-cart-item-img">
-                        <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" style="width: 80px; height: 80px; object-fit: cover;">
+                        <img src="{{ asset('storage/' . ($item->product->image ?? 'default-image.jpg')) }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+
                     </div>
                     <div class="header-cart-item-txt p-t-8">
                         <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
@@ -55,94 +61,175 @@
         @if($cartItems->isEmpty())
         <div class="text-center py-5">
             <h3>Your Cart is Empty</h3>
-            <p><a href="/" class="btn btn-outline-primary">Continue Shopping</a></p>
+            <p><a href="{{ route('shopproducts') }}" class="btn btn-outline-primary">Continue Shopping</a></p>
         </div>
         @else
-        <form method="POST" action="">
-            @csrf
-            <div class="table-responsive">
-                <table class="table table-bordered align-middle">
-                    <thead class="bg-light">
-                        <tr>
-                            <th scope="col">Product</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($cartItems as $item)
-                        <tr>
-                            <td>
-                                <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
-                            </td>
-                            <td>{{ $item->product->name }}</td>
-                            <td>${{ number_format($item->product->price, 2) }}</td>
-                            <td>
-                                <input type="number" id="quantity-{{ $item->id }}" name="quantity[{{ $item->id }}]" class="form-control" value="{{ $item->quantity }}" min="1" onchange="updateQuantity('{{ $item->id }}', 0)">
-                            </td>
-                            <td id="total-{{ $item->id }}" data-price="{{ $item->product->price }}">${{ number_format($item->product->price * $item->quantity, 2) }}</td>
-                            <td>
-                                <button type="button" class="btn btn-danger" onclick="removeFromCart('{{ route('cart.remove', $item->id) }}')">Remove</button>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+        <div id="cart-container">
+
+            <form method="POST" action="">
+                @csrf
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($cartItems as $item)
+                            <tr>
+                                <td>
+                                <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/default-image.jpg') }}" alt="{{ $item->product->name }}">
+
+                                </td>
+                                <td>{{ $item->product->name }}</td>
+                                <td>${{ number_format($item->price, 2) }}</td>
+
+                                <td>
+                                    <input type="number" id="quantity-{{ $item->id }}" name="quantity[{{ $item->id }}]" class="form-control" value="{{ $item->quantity }}" min="1" onchange="updateQuantity('{{ $item->id }}', 0)">
+                                </td>
+                                <td id="total-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format($item->price * $item->quantity, 2) }}</td>
+
+                                <td>
+                                    <button type="button" class="btn btn-danger" onclick="removeFromCart('{{ route('cart.remove', $item->id) }}')">Remove</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end">
+                    <form method="POST" action="{{ route('cart.update') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-info">Update Cart</button>
+                    </form>
+
+                </div>
+            </form>
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Cart Totals</h5>
+                    <p class="card-text"><strong>Subtotal: </strong><span id="subtotal">${{ number_format($total, 2) }}</span></p>
+                    <a href="" class="btn btn-success ">Proceed to Checkout</a>
+                </div>
             </div>
-            <div class="text-end">
-                <button type="submit" class="btn btn-info">Update Cart</button>
-            </div>
-        </form>
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Cart Totals</h5>
-                <p class="card-text"><strong>Subtotal: </strong><span id="subtotal">${{ number_format($total, 2) }}</span></p>
-                <a href="" class="btn btn-success ">Proceed to Checkout</a>
-            </div>
+
         </div>
+
         @endif
     </div>
 </div>
 
 <script>
+    function addToCart(variantId, quantity) {
+        $.ajax({
+            url: '/cart/add',
+            method: 'POST',
+            data: {
+                variant_id: variantId,
+                quantity: quantity,
+                _token: $('meta[name="csrf-token"]').attr('content'),
+            },
+            success: function(response) {
+                alert(response.message);
+                // Optionally reload the cart details here:
+                loadCartDetails();
+            }
+        });
+    }
+
+    function loadCartDetails() {
+        $.get('/cart', function(data) {
+            $('#cart-container').html(data);
+        });
+    }
+
     function updateQuantity(itemId, change) {
         let quantityInput = document.getElementById('quantity-' + itemId);
         let newQuantity = parseInt(quantityInput.value) + change;
         if (newQuantity < 1) return;
         quantityInput.value = newQuantity;
+
         let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
-        document.getElementById('total-' + itemId).innerText = (newQuantity * pricePerUnit).toFixed(2);
+        document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
+
         updateSubtotal();
     }
 
     function updateSubtotal() {
         let subtotal = 0;
         document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
-            subtotal += parseFloat(totalElement.innerText);
+            subtotal += parseFloat(totalElement.innerText.replace('$', ''));
         });
-        document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+        document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
     }
 
+    function updateCart() {
+        let quantities = {};
+        document.querySelectorAll('input[name^="quantity"]').forEach(input => {
+            let itemId = input.name.replace('quantity[', '').replace(']', '');
+            quantities[itemId] = input.value;
+        });
+
+        fetch("{{ route('cart.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    quantity: quantities
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadCartDetails();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the cart.');
+            });
+    }
 
     function removeFromCart(url) {
         if (confirm('Are you sure you want to remove this item?')) {
             fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json',
-                }
-            }).then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Failed to remove item.');
-                }
-            }).catch(error => console.error('Error:', error));
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        loadCartDetails();
+                    } else {
+                        alert('Failed to remove item.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while removing the item.');
+                });
         }
+    }
+
+    function loadCartDetails() {
+        $.ajax({
+            url: '/cart',
+            type: 'GET',
+            success: function(data) {
+                $('#cart-container').html(data);
+            }
+        });
     }
 </script>
 @endsection

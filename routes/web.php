@@ -45,8 +45,9 @@ Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('sho
 
 Route::get('/shopping-cart', [ShoppingCartController::class, 'index'])->name('shopping-cart');
 Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('cart.add');
- Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
- Route::delete('/cart/remove/{key}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
+Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
+Route::get('/cart', [ShoppingCartController::class, 'cartShow'])->name('cart.show');
+Route::delete('/cart/remove/{id}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
 
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
 Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-us');
