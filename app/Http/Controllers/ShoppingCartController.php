@@ -77,13 +77,13 @@ class ShoppingCartController extends Controller
         $sessionId = session()->get('cart_session_id');
         $cartItems = ShoppingCart::with('product.attachments')->get();
         $productimage = Product::with(['variants.attachments'])->get();
-
+       
         $cartItems = ShoppingCart::with('product')->when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->get();
-        
+
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
 
         return view('landing.cart.index', compact('cartItems', 'total'));
