@@ -15,17 +15,23 @@ class ShoppingCartController extends Controller
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-
+    
         if ($userId) {
             $cartItems = ShoppingCart::with('product')->where('user_id', $userId)->get();
         } else {
             $cartItems = ShoppingCart::with('product')->where('session_id', $sessionId)->get();
         }
-
+    
+        // Add max_stock for each item
+        foreach ($cartItems as $item) {
+            $item->max_stock = $item->product->stock; // Pass the stock level to the view
+        }
+    
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
-
+    
         return view('landing.cart.index', compact('cartItems', 'total'));
     }
+    
 
     public function addToCart(Request $request)
     {
@@ -75,48 +81,45 @@ class ShoppingCartController extends Controller
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-        $cartItems = ShoppingCart::with('product.attachments')->get();
-        $productimage = Product::with(['variants.attachments'])->get();
-       
+    
         $cartItems = ShoppingCart::with('product')->when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->get();
-
+    
+        // Add max_stock for each item
+        foreach ($cartItems as $item) {
+            $item->max_stock = $item->product->stock; // Pass the stock level to the view
+        }
+    
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
-
+    
         return view('landing.cart.index', compact('cartItems', 'total'));
     }
-
+    
     public function updateCart(Request $request)
     {
+        foreach ($request->quantity as $id => $quantity) {
+            $cartItem = ShoppingCart::find($id);
+            $variant = $cartItem ? ProductVariant::find($cartItem->variant_id) : null;
 
-        if (auth()->check()) {
-            $userId = auth()->id();
-            foreach ($request->quantity as $id => $quantity) {
-                $cartItem = ShoppingCart::where('user_id', $userId)->find($id);
-                if ($cartItem && $quantity > 0) {
-                    $cartItem->quantity = $quantity;
-                    $cartItem->save();
-                }
+            if ($variant && $quantity > $variant->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Cannot update quantity for {$variant->product->name}. Only {$variant->stock} left in stock."
+                ]);
             }
-        } else {
-            $cart = session()->get('cart', []);
-            foreach ($request->quantity as $id => $quantity) {
-                if (isset($cart[$id])) {
-                    if ($quantity > 0) {
-                        $cart[$id]['quantity'] = $quantity;
-                    } else {
-                        unset($cart[$id]);
-                    }
-                }
+
+            if ($cartItem && $quantity > 0) {
+                $cartItem->quantity = $quantity;
+                $cartItem->save();
             }
-            session()->put('cart', $cart);
         }
 
-        return redirect()->route('cart.show')->with('success', 'Cart updated successfully!');
+        return response()->json(['success' => true, 'message' => 'Cart updated successfully!']);
     }
+
 
     public function removeFromCart($id)
     {

@@ -84,14 +84,20 @@
                             @foreach($cartItems as $item)
                             <tr>
                                 <td>
-                                <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/default-image.jpg') }}" alt="{{ $item->product->name }}">
+                                    <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/default-image.jpg') }}" alt="{{ $item->product->name }}">
 
                                 </td>
                                 <td>{{ $item->product->name }}</td>
                                 <td>${{ number_format($item->price, 2) }}</td>
 
                                 <td>
-                                    <input type="number" id="quantity-{{ $item->id }}" name="quantity[{{ $item->id }}]" class="form-control" value="{{ $item->quantity }}" min="1" onchange="updateQuantity('{{ $item->id }}', 0)">
+                                    <input type="number" id="quantity-{{ $item->id }}"
+                                        name="quantity[{{ $item->id }}]"
+                                        class="form-control"
+                                        value="{{ $item->quantity }}"
+                                        min="1"
+                                        onchange="updateQuantity('{{ $item->id }}', 0, {{ $item->max_stock }})">
+
                                 </td>
                                 <td id="total-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format($item->price * $item->quantity, 2) }}</td>
 
@@ -115,7 +121,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Cart Totals</h5>
                     <p class="card-text"><strong>Subtotal: </strong><span id="subtotal">${{ number_format($total, 2) }}</span></p>
-                    <a href="" class="btn btn-success ">Proceed to Checkout</a>
+                    <form action="{{ route('payment.process') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="total" value="{{ $total }}">
+                        <button type="submit" class="btn btn-success">Proceed to Checkout</button>
+                    </form>
+
                 </div>
             </div>
 
@@ -149,17 +160,33 @@
         });
     }
 
-    function updateQuantity(itemId, change) {
+    function updateQuantity(itemId, change, maxStock) {
         let quantityInput = document.getElementById('quantity-' + itemId);
-        let newQuantity = parseInt(quantityInput.value) + change;
-        if (newQuantity < 1) return;
+        let currentQuantity = parseInt(quantityInput.value);
+        let newQuantity = currentQuantity + change;
+
+        if (newQuantity > maxStock) {
+            alert(`Only ${maxStock} items are available in stock.`);
+            return;
+        }
+
+        if (newQuantity < 1) {
+            alert("Quantity cannot be less than 1.");
+            return;
+        }
+
+
         quantityInput.value = newQuantity;
+
 
         let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
         document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
 
+
         updateSubtotal();
     }
+
+
 
     function updateSubtotal() {
         let subtotal = 0;
@@ -169,33 +196,30 @@
         document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
     }
 
-    function updateCart() {
-        let quantities = {};
-        document.querySelectorAll('input[name^="quantity"]').forEach(input => {
-            let itemId = input.name.replace('quantity[', '').replace(']', '');
-            quantities[itemId] = input.value;
-        });
+    function updateQuantity(itemId, change, maxStock) {
+        let quantityInput = document.getElementById('quantity-' + itemId);
+        let currentQuantity = parseInt(quantityInput.value);
+        let newQuantity = currentQuantity + change;
 
-        fetch("{{ route('cart.update') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    quantity: quantities
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                loadCartDetails();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the cart.');
-            });
+        if (newQuantity > maxStock) {
+            alert(`Only ${maxStock} items are available in stock.`);
+            return;
+        }
+
+        if (newQuantity < 1) {
+            alert("Quantity cannot be less than 1.");
+            return;
+        }
+
+        quantityInput.value = newQuantity;
+
+        let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
+        document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
+
+        updateSubtotal();
     }
+
+
 
     function removeFromCart(url) {
         if (confirm('Are you sure you want to remove this item?')) {

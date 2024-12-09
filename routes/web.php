@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VariantController;
@@ -42,12 +43,18 @@ Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
 // Route::get('/shopping-cart', [FrontController::class, 'shoppingcarts'])->name('shopping-cart');
 //  Route::post('/shopping-cart/{product}', [ShoppingCartController::class, 'addToCart'])->name('shopping-cart');
-
+Route::post('/shopping-cart', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
 Route::get('/shopping-cart', [ShoppingCartController::class, 'index'])->name('shopping-cart');
 Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('cart.add');
-Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
+// Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
 Route::get('/cart', [ShoppingCartController::class, 'cartShow'])->name('cart.show');
 Route::delete('/cart/remove/{id}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
+
+
+Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
+Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
 Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-us');
