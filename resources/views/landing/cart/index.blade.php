@@ -4,11 +4,9 @@
 
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
 </head>
 <div class="wrap-header-cart js-panel-cart">
     <div class="s-full js-hide-cart"></div>
-
     <div class="header-cart flex-col-l p-l-65 p-r-25">
         <div class="header-cart-title flex-w flex-sb-m p-b-8">
             <span class="mtext-103 cl2">Your Cart</span>
@@ -16,7 +14,6 @@
                 <i class="zmdi zmdi-close"></i>
             </div>
         </div>
-
         <div class="header-cart-content flex-w js-pscroll">
             @if($cartItems->isEmpty())
             <p class="text-center w-100 p-4">Your cart is currently empty.</p>

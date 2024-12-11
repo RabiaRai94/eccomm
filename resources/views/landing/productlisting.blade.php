@@ -8,7 +8,6 @@
      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
      <style>
-          /* Make the table look like a container for flex items */
           #products-table_wrapper {
                width: 100%;
           }
@@ -120,7 +119,7 @@
                          alert(response.message);
                     },
                     error: function() {
-                         alert('Failed to add product to cart.');
+                         alert('Failed to add product to cart/out of stock.');
                     }
                });
           });
