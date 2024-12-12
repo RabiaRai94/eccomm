@@ -4,6 +4,7 @@
 <div class="container m-5">
     <h2>Payment Successful!</h2>
     <p>Thank you for your purchase.</p>
-    <a href="{{ route('home') }}" class="btn btn-primary">Return Home</a>
+    <a href="{{ route('home') }}" class="btn btn-primary">Return Home</a><br>
+    <!-- <p><a href="{{ route('shopproducts') }}" class="btn btn-outline-primary">Continue to shop more</a></p> -->
 </div>
 @endsection

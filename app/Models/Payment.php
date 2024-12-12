@@ -13,7 +13,7 @@ class Payment extends Model
         'order_id',
         'amount',
         'status', 
-        'transaction_id', 
+        'payment_transaction_id', 
         'payment_details'];
 
   

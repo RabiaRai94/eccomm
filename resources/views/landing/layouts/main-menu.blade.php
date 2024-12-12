@@ -146,11 +146,9 @@
                          <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
                               <i class="fas fa-search"></i>
                          </div>
-
-                         <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="2">
+                         <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="0">
                               <i class="fas fa-shopping-cart"></i>
                          </div>
-
                          <a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="0">
                               <i class="fas fa-heart"></i>
                          </a>
@@ -165,7 +163,7 @@
                <a href="index.html"><img src="images/icons/logo-01.png" alt="IMG-LOGO"></a>
           </div>
 
-          <div class="wrap-icon-header flex-w flex-r-m m-r-15">
+          <!-- <div class="wrap-icon-header flex-w flex-r-m m-r-15">
                <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
                     <i class="fas fa-search"></i>
                </div>
@@ -177,7 +175,7 @@
                <a href="#" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti" data-notify="0">
                     <i class="fas fa-heart"></i>
                </a>
-          </div>
+          </div> -->
 
           <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
                <span class="hamburger-box">

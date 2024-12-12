@@ -40,7 +40,7 @@ class ShoppingCartController extends Controller
 
         $sessionId = session()->get('cart_session_id') ?? Str::uuid()->toString();
         session()->put('cart_session_id', $sessionId);
-
+        session()->put('cart_expires_at', now()->addMinutes(.5));
         $productName = $variant->product ? $variant->product->name : 'Default Product';
         $image = $variant->attachments->first()->file_path ?? 'default-image.jpg';
         $price = $variant->price;
@@ -73,8 +73,18 @@ class ShoppingCartController extends Controller
             $cartItem->price = $price;
             $cartItem->save();
         }
-
-        return response()->json(['message' => 'Product added to cart successfully!']);
+        $cartCount = ShoppingCart::when($userId, function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }, function ($query) use ($sessionId) {
+            $query->where('session_id', $sessionId);
+        })->count();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Product added to cart successfully!',
+            'cartCount' => $cartCount,
+        ]);
+        // return response()->json(['message' => 'Product added to cart successfully!']);
     }
 
     public function cartShow()

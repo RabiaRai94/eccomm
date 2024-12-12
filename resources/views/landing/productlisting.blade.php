@@ -105,7 +105,7 @@
           $(document).on('click', '.add-to-cart', function() {
                let productId = $(this).data('product-id');
                let variantId = $(this).data('variant-id');
-               let quantity = 1;
+               const quantity = $(this).data('quantity') || 1;
 
                $.ajax({
                     url: '/cart/add',
@@ -117,6 +117,8 @@
                     },
                     success: function(response) {
                          alert(response.message);
+                         const cartCount = response.cartCount;
+                         $('.js-show-cart').attr('data-notify', cartCount);
                     },
                     error: function() {
                          alert('Failed to add product to cart/out of stock.');

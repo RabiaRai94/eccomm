@@ -12,7 +12,9 @@ use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
 use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Auth;
-
+use ProductOrderStatusEnum;
+use PaymentStatusEnum;
+use PaymentMethodEnum;
 class PaymentController extends Controller
 {
     public function checkout()
@@ -62,7 +64,7 @@ class PaymentController extends Controller
         $totalPrice = $cartItems->sum(fn($item) => $item->quantity * $item->price);
     
         $paymentMethod = PaymentMethod::create([
-            // 'name' => PaymentMethodEnum::CARD,
+            'name' => PaymentMethodEnum::CARD,
             'provider' => 'Stripe',
             'details' => 'Paid via Stripe Checkout',
         ]);
@@ -70,7 +72,7 @@ class PaymentController extends Controller
         $productOrder = ProductOrder::create([
             'user_id' => $userId, 
             'total_price' => $totalPrice,
-            // 'status' => ProductOrderStatusEnum::COMPLETED,
+            'status' => ProductOrderStatusEnum::COMPLETED,
             'payment_method_id' => $paymentMethod->id,
         ]);
     
@@ -87,7 +89,7 @@ class PaymentController extends Controller
         Payment::create([
             'order_id' => $productOrder->id,
             'amount' => $totalPrice,
-            // 'status' => PaymentStatusEnum::SUCCESSFUL,
+            'status' => PaymentStatusEnum::SUCCESSFUL,
             'payment_transaction_id' => 'txn_' . Uuid::uuid4()->toString(),
             // 'payment_transaction_id' => uniqid('txn_'),
             'payment_details' => 'Payment processed successfully',
