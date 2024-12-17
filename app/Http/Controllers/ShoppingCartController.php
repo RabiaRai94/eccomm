@@ -15,32 +15,36 @@ class ShoppingCartController extends Controller
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-    
+
         if ($userId) {
             $cartItems = ShoppingCart::with('product')->where('user_id', $userId)->get();
         } else {
             $cartItems = ShoppingCart::with('product')->where('session_id', $sessionId)->get();
         }
-    
-        // Add max_stock for each item
+
         foreach ($cartItems as $item) {
-            $item->max_stock = $item->product->stock; // Pass the stock level to the view
+            $item->max_stock = $item->product->stock;
         }
-    
+
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
-    
         return view('landing.cart.index', compact('cartItems', 'total'));
     }
-    
 
     public function addToCart(Request $request)
     {
         $variant = ProductVariant::with('product')->findOrFail($request->variant_id);
-        $userId = auth()->id();
 
-        $sessionId = session()->get('cart_session_id') ?? Str::uuid()->toString();
-        session()->put('cart_session_id', $sessionId);
-        session()->put('cart_expires_at', now()->addMinutes(.5));
+        if (Auth::check()) {
+            $userId = auth()->id();
+            $sessionId = session()->get('cart_session_id');
+            if ($sessionId) {
+                ShoppingCart::where('session_id', $sessionId)->update(['user_id' => $userId, 'session_id' => null]);
+                session()->forget('cart_session_id');
+            }
+        }
+        // $sessionId = session()->get('cart_session_id') ?? Str::uuid()->toString();
+        // session()->put('cart_session_id', $sessionId);
+        // session()->put('cart_expires_at', now()->addMinutes(.5));
         $productName = $variant->product ? $variant->product->name : 'Default Product';
         $image = $variant->attachments->first()->file_path ?? 'default-image.jpg';
         $price = $variant->price;
@@ -78,7 +82,7 @@ class ShoppingCartController extends Controller
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->count();
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Product added to cart successfully!',
@@ -86,28 +90,38 @@ class ShoppingCartController extends Controller
         ]);
         // return response()->json(['message' => 'Product added to cart successfully!']);
     }
+    public function cartCount()
+    {
+        $userId = auth()->id();
+        $sessionId = session()->get('cart_session_id');
+        $cartCount = ShoppingCart::when($userId, function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }, function ($query) use ($sessionId) {
+            $query->where('session_id', $sessionId);
+        })->count();
+
+        return response()->json(['cartCount' => $cartCount]);
+    }
 
     public function cartShow()
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-    
+
         $cartItems = ShoppingCart::with('product')->when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->get();
-    
-        // Add max_stock for each item
+
         foreach ($cartItems as $item) {
-            $item->max_stock = $item->product->stock; // Pass the stock level to the view
+            $item->max_stock = $item->product->stock;
         }
-    
+
         $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
-    
         return view('landing.cart.index', compact('cartItems', 'total'));
     }
-    
+
     public function updateCart(Request $request)
     {
         foreach ($request->quantity as $id => $quantity) {
@@ -126,7 +140,6 @@ class ShoppingCartController extends Controller
                 $cartItem->save();
             }
         }
-
         return response()->json(['success' => true, 'message' => 'Cart updated successfully!']);
     }
 
@@ -134,11 +147,9 @@ class ShoppingCartController extends Controller
     public function removeFromCart($id)
     {
         $cartItem = ShoppingCart::find($id);
-
         if ($cartItem) {
             $cartItem->delete();
         }
-
         return response()->json([
             'message' => 'Item removed successfully!',
 

@@ -231,6 +231,8 @@
                 .then(data => {
                     if (data.message) {
                         alert(data.message);
+                        const cartCount = response.cartCount;
+                        $('.icon-header-noti.js-show-cart').attr('data-notify', cartCount);
                         loadCartDetails();
                     } else {
                         alert('Failed to remove item.');
@@ -252,5 +254,15 @@
             }
         });
     }
+
+    setInterval(function() {
+        $.ajax({
+            url: '/cart/count',
+            method: 'GET',
+            success: function(response) {
+                $('.icon-header-noti.js-show-cart').attr('data-notify', response.cartCount);
+            }
+        });
+    }, 60000); // Refresh every 60 seconds
 </script>
 @endsection

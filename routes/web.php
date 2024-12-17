@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\PaymentController;
@@ -43,6 +42,8 @@ Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
 // Route::get('/shopping-cart', [FrontController::class, 'shoppingcarts'])->name('shopping-cart');
 //  Route::post('/shopping-cart/{product}', [ShoppingCartController::class, 'addToCart'])->name('shopping-cart');
+Route::get('/cart/count', [ShoppingCartController::class, 'cartCount']);
+
 Route::post('/shopping-cart', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
 Route::get('/shopping-cart', [ShoppingCartController::class, 'index'])->name('shopping-cart');
 Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('cart.add');
@@ -61,6 +62,8 @@ Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-
 Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about-us');
 
 Route::resource('products', ProductController::class);
+Route::get('/getcategories', [ProductController::class, 'getCategories'])->name('landing.categories');
+
 Route::get('/landing-products', [ProductController::class, 'getLandingProducts'])->name('landing.products.data');
 
 
