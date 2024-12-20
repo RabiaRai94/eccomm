@@ -16,7 +16,7 @@ class ProductOrder extends Model
         'payment_method_id',
     ];
 
-    public function items()
+    public function orderItems()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
     }

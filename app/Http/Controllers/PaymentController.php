@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use Stripe\Stripe;
 use Ramsey\Uuid\Uuid;
+use PaymentMethodEnum;
+use PaymentStatusEnum;
 use App\Models\Payment;
 use App\Models\OrderItem;
+use ProductOrderStatusEnum;
 use App\Models\ProductOrder;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
 use App\Models\PaymentMethod;
+use App\Mail\OrderConfirmationMail;
 use Illuminate\Support\Facades\Auth;
-use ProductOrderStatusEnum;
-use PaymentStatusEnum;
-use PaymentMethodEnum;
+use Illuminate\Support\Facades\Mail;
+
 class PaymentController extends Controller
 {
     public function checkout()
@@ -40,6 +43,7 @@ class PaymentController extends Controller
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
+            
             'success_url' => route('payment.success'),
             'cancel_url' => route('payment.cancel'),
         ]);
@@ -50,32 +54,32 @@ class PaymentController extends Controller
     {
         $userId = Auth::id();
         $sessionId = session()->get('cart_session_id');
-    
+
         $cartItems = ShoppingCart::when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->get();
-    
-        if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'No items in the cart.');
-        }
-    
+
+        // if ($cartItems->isEmpty()) {
+        //     return redirect()->route('cart.index')->with('error', 'No items in the cart.');
+        // }
+
         $totalPrice = $cartItems->sum(fn($item) => $item->quantity * $item->price);
-    
+
         $paymentMethod = PaymentMethod::create([
             'name' => PaymentMethodEnum::CARD,
             'provider' => 'Stripe',
             'details' => 'Paid via Stripe Checkout',
         ]);
-    
+
         $productOrder = ProductOrder::create([
-            'user_id' => $userId, 
+            'user_id' => $userId,
             'total_price' => $totalPrice,
             'status' => ProductOrderStatusEnum::COMPLETED,
             'payment_method_id' => $paymentMethod->id,
         ]);
-    
+
         foreach ($cartItems as $cartItem) {
             OrderItem::create([
                 'order_id' => $productOrder->id,
@@ -85,7 +89,7 @@ class PaymentController extends Controller
                 'price' => $cartItem->price,
             ]);
         }
-    
+
         Payment::create([
             'order_id' => $productOrder->id,
             'amount' => $totalPrice,
@@ -94,16 +98,30 @@ class PaymentController extends Controller
             // 'payment_transaction_id' => uniqid('txn_'),
             'payment_details' => 'Payment processed successfully',
         ]);
-    
+
+        // ShoppingCart::when($userId, function ($query) use ($userId) {
+        //     $query->where('user_id', $userId);
+        // }, function ($query) use ($sessionId) {
+        //     $query->where('session_id', $sessionId);
+        // })->delete();
+
+        $productOrder->load('orderItems.product');
+
+
+        Mail::to(Auth::user()->email)->send(new OrderConfirmationMail($productOrder));
+
+        // Clear the shopping cart
         ShoppingCart::when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
             $query->where('session_id', $sessionId);
         })->delete();
-    
+
+        // Clear session cart (optional if you use a session-based cart as well)
+        session()->forget('cart');
         return view('checkout.payment-success');
     }
-    
+
 
     public function cancel()
     {

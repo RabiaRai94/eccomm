@@ -60,7 +60,7 @@
                             `<button class="btn btn-secondary" data-category="${category.id}">${category.name}</button>`
                         );
                     });
-                    loadProducts(); 
+                    loadProducts();
                 }
             });
 
@@ -69,11 +69,15 @@
                 loadProducts(categoryId);
             });
 
+
+
             function loadProducts(categoryId = 'all') {
                 $.ajax({
                     url: '{{ route("landing.products.data") }}',
                     method: 'GET',
-                    data: { category: categoryId },
+                    data: {
+                        category: categoryId
+                    },
                     success: function(products) {
                         const container = $('#products-container');
                         container.empty();
@@ -83,6 +87,29 @@
                     }
                 });
             }
+        });
+        $(document).on('click', '.add-to-cart', function() {
+            let productId = $(this).data('product-id');
+            let variantId = $(this).data('variant-id');
+            const quantity = $(this).data('quantity') || 1;
+
+            $.ajax({
+                url: '/cart/add',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    variant_id: variantId,
+                    quantity: quantity
+                },
+                success: function(response) {
+                    alert(response.message);
+                    const cartCount = response.cartCount;
+                    $('.js-show-cart').attr('data-notify', cartCount);
+                },
+                error: function() {
+                    alert('Failed to add product to cart/out of stock.');
+                }
+            });
         });
     </script>
 </body>

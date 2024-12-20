@@ -52,6 +52,7 @@ class ProductController extends Controller
                 $imagePath = $variant->attachments->first()->file_path ?? 'default-image.jpg';
                 $cardHtml .= "
                 <div class='card m-2' style='width: 12rem;'>
+                
                     <img src='" . asset("storage/{$imagePath}") . "' class='card-img-top' alt='{$variant->size}' style='height: 250px; object-fit: cover;'>
                     <div class='card-body'>
                         <h6 class='card-subtitle mb-2 text-muted'>Size: {$variant->size}</h6>
@@ -65,6 +66,7 @@ class ProductController extends Controller
                             data-variant-price='{$variant->price}'>
                             Add to Cart
                         </button>
+                        
                     </div>
                 </div>";
             }

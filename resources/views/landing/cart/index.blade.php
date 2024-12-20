@@ -88,12 +88,16 @@
                                 <td>${{ number_format($item->price, 2) }}</td>
 
                                 <td>
-                                    <input type="number" id="quantity-{{ $item->id }}"
+                                    <input
+                                        type="number"
+                                        id="quantity-{{ $item->id }}"
                                         name="quantity[{{ $item->id }}]"
                                         class="form-control"
                                         value="{{ $item->quantity }}"
-                                        min="1"
-                                        onchange="updateQuantity('{{ $item->id }}', 0, {{ $item->max_stock }})">
+                                        data-item-id="{{ $item->id }}"
+                                        data-max-stock="{{ $item->max_stock }}"
+                                        data-price="{{ $item->price }}"
+                                        min="1">
 
                                 </td>
                                 <td id="total-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format($item->price * $item->quantity, 2) }}</td>
@@ -134,6 +138,41 @@
 </div>
 
 <script>
+    document.querySelectorAll('[id^="quantity-"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const maxStock = parseInt(this.getAttribute('data-max-stock'), 10);
+            let quantity = parseInt(this.value, 10);
+
+            // Validate the input value to not exceed max stock and not go below 1
+            if (isNaN(quantity) || quantity < 1) {
+                quantity = 1; // Set to minimum allowed
+            } else if (quantity > maxStock) {
+                quantity = maxStock; // Set to maximum allowed stock
+            }
+
+            // Update the input value dynamically
+            this.value = quantity;
+
+            // Update the total price for this item
+            const itemId = this.getAttribute('data-item-id');
+            const pricePerUnit = parseFloat(this.getAttribute('data-price'));
+            const totalElement = document.getElementById('total-' + itemId);
+            totalElement.textContent = '$' + (quantity * pricePerUnit).toFixed(2);
+
+            // Update the cart subtotal
+            updateCartSubtotal();
+        });
+    });
+
+    function updateCartSubtotal() {
+        let subtotal = 0;
+        document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
+            subtotal += parseFloat(totalElement.textContent.replace('$', ''));
+        });
+        document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    }
+
+
     function addToCart(variantId, quantity) {
         $.ajax({
             url: '/cart/add',
@@ -145,7 +184,7 @@
             },
             success: function(response) {
                 alert(response.message);
-                // Optionally reload the cart details here:
+               
                 loadCartDetails();
             }
         });
@@ -157,65 +196,41 @@
         });
     }
 
-    function updateQuantity(itemId, change, maxStock) {
-        let quantityInput = document.getElementById('quantity-' + itemId);
-        let currentQuantity = parseInt(quantityInput.value);
-        let newQuantity = currentQuantity + change;
+    // function updateQuantity(itemId, change, maxStock) {
+    //     let quantityInput = document.getElementById('quantity-' + itemId);
+    //     let currentQuantity = parseInt(quantityInput.value);
+    //     let newQuantity = currentQuantity + change;
 
-        if (newQuantity > maxStock) {
-            alert(`Only ${maxStock} items are available in stock.`);
-            return;
-        }
+    //     if (newQuantity > maxStock) {
+    //         alert(`Only ${maxStock} items are available in stock.`);
+    //         return;
+    //     }
 
-        if (newQuantity < 1) {
-            alert("Quantity cannot be less than 1.");
-            return;
-        }
-
-
-        quantityInput.value = newQuantity;
+    //     if (newQuantity < 1) {
+    //         alert("Quantity cannot be less than 1.");
+    //         return;
+    //     }
 
 
-        let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
-        document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
+    //     quantityInput.value = newQuantity;
 
 
-        updateSubtotal();
-    }
+    //     let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
+    //     document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
+
+
+    //     updateSubtotal();
+    // }
 
 
 
-    function updateSubtotal() {
-        let subtotal = 0;
-        document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
-            subtotal += parseFloat(totalElement.innerText.replace('$', ''));
-        });
-        document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
-    }
-
-    function updateQuantity(itemId, change, maxStock) {
-        let quantityInput = document.getElementById('quantity-' + itemId);
-        let currentQuantity = parseInt(quantityInput.value);
-        let newQuantity = currentQuantity + change;
-
-        if (newQuantity > maxStock) {
-            alert(`Only ${maxStock} items are available in stock.`);
-            return;
-        }
-
-        if (newQuantity < 1) {
-            alert("Quantity cannot be less than 1.");
-            return;
-        }
-
-        quantityInput.value = newQuantity;
-
-        let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
-        document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
-
-        updateSubtotal();
-    }
-
+    // function updateSubtotal() {
+    //     let subtotal = 0;
+    //     document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
+    //         subtotal += parseFloat(totalElement.innerText.replace('$', ''));
+    //     });
+    //     document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
+    // }
 
 
     function removeFromCart(url) {
@@ -238,10 +253,10 @@
                         alert('Failed to remove item.');
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while removing the item.');
-                });
+            // .catch(error => {
+            //     console.error('Error:', error);
+            //     alert('An error occurred while removing the item.');
+            // });
         }
     }
 

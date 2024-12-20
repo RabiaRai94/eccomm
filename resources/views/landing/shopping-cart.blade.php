@@ -1,5 +1,8 @@
 @extends('landing.layouts.master')
 @section('content')
+<head>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
 <div class="wrap-header-cart js-panel-cart">
     <div class="s-full js-hide-cart"></div>
 

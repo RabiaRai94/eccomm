@@ -27,7 +27,7 @@ $(document).ready(function () {
     $('#categoryTable').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('categories.index') }}", // Ensure this URL returns JSON
+        ajax: "{{ route('categories.index') }}", 
         columns: [
             { data: 'id', name: 'id' },
             { data: 'name', name: 'name' },
