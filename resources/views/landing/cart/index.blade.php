@@ -95,11 +95,12 @@
                                         class="form-control"
                                         value="{{ $item->quantity }}"
                                         data-item-id="{{ $item->id }}"
-                                        data-max-stock="{{ $item->max_stock }}"
+                                        data-max-stock="{{ $item->variant_stock ?? 0 }}"
                                         data-price="{{ $item->price }}"
                                         min="1">
-
+                                    <small class="text-muted">Stock: {{ $item->variant_stock ?? 'Out of Stock' }}</small>
                                 </td>
+
                                 <td id="total-{{ $item->id }}" data-price="{{ $item->price }}">${{ number_format($item->price * $item->quantity, 2) }}</td>
 
                                 <td>
@@ -143,23 +144,22 @@
             const maxStock = parseInt(this.getAttribute('data-max-stock'), 10);
             let quantity = parseInt(this.value, 10);
 
-            // Validate the input value to not exceed max stock and not go below 1
             if (isNaN(quantity) || quantity < 1) {
-                quantity = 1; // Set to minimum allowed
+                quantity = 1;
             } else if (quantity > maxStock) {
-                quantity = maxStock; // Set to maximum allowed stock
+                alert(`Only ${maxStock} items are available in stock.`);
+                quantity = maxStock;
             }
 
-            // Update the input value dynamically
             this.value = quantity;
 
-            // Update the total price for this item
+
             const itemId = this.getAttribute('data-item-id');
             const pricePerUnit = parseFloat(this.getAttribute('data-price'));
             const totalElement = document.getElementById('total-' + itemId);
             totalElement.textContent = '$' + (quantity * pricePerUnit).toFixed(2);
 
-            // Update the cart subtotal
+
             updateCartSubtotal();
         });
     });
@@ -184,7 +184,7 @@
             },
             success: function(response) {
                 alert(response.message);
-               
+
                 loadCartDetails();
             }
         });
@@ -196,41 +196,6 @@
         });
     }
 
-    // function updateQuantity(itemId, change, maxStock) {
-    //     let quantityInput = document.getElementById('quantity-' + itemId);
-    //     let currentQuantity = parseInt(quantityInput.value);
-    //     let newQuantity = currentQuantity + change;
-
-    //     if (newQuantity > maxStock) {
-    //         alert(`Only ${maxStock} items are available in stock.`);
-    //         return;
-    //     }
-
-    //     if (newQuantity < 1) {
-    //         alert("Quantity cannot be less than 1.");
-    //         return;
-    //     }
-
-
-    //     quantityInput.value = newQuantity;
-
-
-    //     let pricePerUnit = parseFloat(document.getElementById('total-' + itemId).getAttribute('data-price'));
-    //     document.getElementById('total-' + itemId).innerText = '$' + (newQuantity * pricePerUnit).toFixed(2);
-
-
-    //     updateSubtotal();
-    // }
-
-
-
-    // function updateSubtotal() {
-    //     let subtotal = 0;
-    //     document.querySelectorAll('[id^="total-"]').forEach(totalElement => {
-    //         subtotal += parseFloat(totalElement.innerText.replace('$', ''));
-    //     });
-    //     document.getElementById('subtotal').innerText = '$' + subtotal.toFixed(2);
-    // }
 
 
     function removeFromCart(url) {
@@ -253,10 +218,7 @@
                         alert('Failed to remove item.');
                     }
                 })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            //     alert('An error occurred while removing the item.');
-            // });
+
         }
     }
 
@@ -278,6 +240,6 @@
                 $('.icon-header-noti.js-show-cart').attr('data-notify', response.cartCount);
             }
         });
-    }, 60000); // Refresh every 60 seconds
+    }, 60000);
 </script>
 @endsection

@@ -11,25 +11,44 @@ use Illuminate\Support\Facades\Auth;
 
 class ShoppingCartController extends Controller
 {
+    // public function index(Request $request)
+    // {
+    //     $userId = auth()->id();
+    //     $sessionId = session()->get('cart_session_id');
+    //     if ($userId) {
+    //         $cartItems = ShoppingCart::with('product')->where('user_id', $userId)->get();
+    //     } else {
+    //         $cartItems = ShoppingCart::with('product')->where('session_id', $sessionId)->get();
+    //     }
+    //     $cartItems = ShoppingCart::with(['product.variants'])->get();
+    //    dd($cartItems);
+    
+    //     $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
+    //     return view('landing.cart.index', compact('cartItems', 'total'));
+    // }
     public function index(Request $request)
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-
         if ($userId) {
-            $cartItems = ShoppingCart::with('product')->where('user_id', $userId)->get();
+            $cartItems = ShoppingCart::with(['product.variants'])->where('user_id', $userId)->get();
         } else {
-            $cartItems = ShoppingCart::with('product')->where('session_id', $sessionId)->get();
+            $cartItems = ShoppingCart::with(['product.variants'])->where('session_id', $sessionId)->get();
         }
-
-        foreach ($cartItems as $item) {
-            $item->max_stock = $item->product->stock;
-        }
-
-        $total = $cartItems->sum(fn($item) => ($item->product->price ?? $item->price) * $item->quantity);
+        $cartItems->each(function ($item) {
+            if ($item->product && $item->product->variants->isNotEmpty()) {
+                $variant = $item->product->variants->first(); // Adjust if specific logic is needed
+                $item->variant_stock = $variant->stock;
+            }
+        });
+        
+  
+        
+        $total = $cartItems->sum(fn($item) => ($item->variant_price ?? $item->price) * $item->quantity);
+    
         return view('landing.cart.index', compact('cartItems', 'total'));
     }
-
+    
     // public function addToCart(Request $request)
     // {
     //     $variant = ProductVariant::with('product')->findOrFail($request->variant_id);
@@ -164,7 +183,7 @@ class ShoppingCartController extends Controller
     {
         $userId = auth()->id();
         $sessionId = session()->get('cart_session_id');
-
+        $cartItems = ShoppingCart::with(['product.variants'])->get();
         $cartItems = ShoppingCart::with('product')->when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {
@@ -201,7 +220,12 @@ class ShoppingCartController extends Controller
     // }
     public function updateCart(Request $request)
     {
-        foreach ($request->quantity as $id => $quantity) {
+        $validated = $request->validate([
+            'quantity' => 'required|array', // Ensure it's an array
+            'quantity.*' => 'integer|min:1', // Ensure each quantity is an integer >= 1
+        ]);
+    
+        foreach ($validated['quantity'] as $id => $quantity) {
             $cartItem = ShoppingCart::find($id);
             $variant = $cartItem ? ProductVariant::find($cartItem->variant_id) : null;
     
@@ -220,6 +244,7 @@ class ShoppingCartController extends Controller
         return response()->json(['success' => true, 'message' => 'Cart updated successfully!']);
     }
     
+
 
     public function removeFromCart($id)
     {
