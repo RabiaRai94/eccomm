@@ -7,4 +7,3 @@
     <a href="{{ route('checkout') }}" class="btn btn-warning">Try Again</a>
 </div>
 @endsection
-<script src="https://js.stripe.com/v3/"></script>

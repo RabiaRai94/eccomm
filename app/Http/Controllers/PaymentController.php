@@ -2,129 +2,99 @@
 
 namespace App\Http\Controllers;
 
+use Stripe\Charge;
 use Stripe\Stripe;
-use Ramsey\Uuid\Uuid;
-use PaymentMethodEnum;
-use PaymentStatusEnum;
-use App\Models\Payment;
-use App\Models\OrderItem;
-use ProductOrderStatusEnum;
-use App\Models\ProductOrder;
-use App\Models\ShoppingCart;
+use Stripe\PaymentIntent;
 use Illuminate\Http\Request;
-use Stripe\Checkout\Session;
-use App\Models\PaymentMethod;
-use App\Mail\OrderConfirmationMail;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
     public function checkout()
     {
-        $cartItems = session('cart');
-        $total = collect($cartItems)->sum(fn($item) => $item['price'] * $item['quantity']);
-        return view('checkout.checkout', compact('cartItems', 'total'));
+        return view('landing.checkout');
     }
 
+    // public function createPaymentIntent(Request $request)
+    // {
+    //     Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    //     $intent = PaymentIntent::create([
+    //         'amount' => $request->total * 100,
+    //         'currency' => 'usd',
+    //         'payment_method_types' => ['card'],
+    //     ]);
+
+    //     return response()->json(['clientSecret' => $intent->client_secret]);
+    // }
+    // public function createPaymentIntent(Request $request)
+    // {
+    //     // Set your Stripe secret key
+    //     Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    //     try {
+    //         // Create a PaymentIntent
+    //         $paymentIntent = PaymentIntent::create([
+    //             'amount' => 5000, // Amount in cents (e.g., $50.00)
+    //             'currency' => 'usd',
+    //             'automatic_payment_methods' => ['enabled' => true],
+    //         ]);
+
+    //         return response()->json(['clientSecret' => $paymentIntent->client_secret]);
+
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // }
+    public function createPaymentIntent(Request $request)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $stripe = new \Stripe\StripeClient('sk_test_51QSENdCOqW9AveYvymlk3vLPlPnrcV9jJJMNbkJK9p8jwnQELm3d4uAMtUTp55erc41JfDrmtVU1MobV7hNqsKy600lPJUbQEI');
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => 5000,
+                'currency' => 'usd',
+                'automatic_payment_methods' => ['enabled' => true],
+            ]);
+
+            return response()->json(['clientSecret' => $paymentIntent->client_secret]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     public function processPayment(Request $request)
     {
-        Stripe::setApiKey(config('services.stripe.secret'));
-        $session = Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price_data' => [
-                    'currency' => 'usd',
-                    'product_data' => [
-                        'name' => 'Cart Items',
-                    ],
-                    'unit_amount' => $request->total * 100,
-                ],
-                'quantity' => 1,
-            ]],
-            'mode' => 'payment',
-            
-            'success_url' => route('payment.success'),
-            'cancel_url' => route('payment.cancel'),
-        ]);
-        return redirect($session->url);
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+    
+        try {
+            Log::info('Processing payment', $request->all());
+    
+            $charge = Charge::create([
+                'amount' => $request->price * 100, 
+                'currency' => 'usd',
+                'source' => $request->stripeToken, 
+                'description' => 'Payment for Order',
+            ]);
+    
+            Log::info('Charge successful', $charge->toArray());
+    
+            return redirect()->route('payment.success')->with('message', 'Payment successful!');
+        } catch (\Exception $e) {
+          
+            Log::error('Payment failed: ' . $e->getMessage());
+    
+            return redirect()->route('payment.cancel')->with('error', $e->getMessage());
+        }
     }
+    
 
     public function success()
     {
-        $userId = Auth::id();
-        $sessionId = session()->get('cart_session_id');
-
-        $cartItems = ShoppingCart::when($userId, function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        }, function ($query) use ($sessionId) {
-            $query->where('session_id', $sessionId);
-        })->get();
-
-        // if ($cartItems->isEmpty()) {
-        //     return redirect()->route('cart.index')->with('error', 'No items in the cart.');
-        // }
-
-        $totalPrice = $cartItems->sum(fn($item) => $item->quantity * $item->price);
-
-        $paymentMethod = PaymentMethod::create([
-            'name' => PaymentMethodEnum::CARD,
-            'provider' => 'Stripe',
-            'details' => 'Paid via Stripe Checkout',
-        ]);
-
-        $productOrder = ProductOrder::create([
-            'user_id' => $userId,
-            'total_price' => $totalPrice,
-            'status' => ProductOrderStatusEnum::COMPLETED,
-            'payment_method_id' => $paymentMethod->id,
-        ]);
-
-        foreach ($cartItems as $cartItem) {
-            OrderItem::create([
-                'order_id' => $productOrder->id,
-                'product_id' => $cartItem->product_id,
-                'product_variant_id' => $cartItem->variant_id,
-                'quantity' => $cartItem->quantity,
-                'price' => $cartItem->price,
-            ]);
-        }
-
-        Payment::create([
-            'order_id' => $productOrder->id,
-            'amount' => $totalPrice,
-            'status' => PaymentStatusEnum::SUCCESSFUL,
-            'payment_transaction_id' => 'txn_' . Uuid::uuid4()->toString(),
-            // 'payment_transaction_id' => uniqid('txn_'),
-            'payment_details' => 'Payment processed successfully',
-        ]);
-
-        // ShoppingCart::when($userId, function ($query) use ($userId) {
-        //     $query->where('user_id', $userId);
-        // }, function ($query) use ($sessionId) {
-        //     $query->where('session_id', $sessionId);
-        // })->delete();
-
-        $productOrder->load('orderItems.product');
-
-
-        Mail::to(Auth::user()->email)->send(new OrderConfirmationMail($productOrder));
-
-        // Clear the shopping cart
-        ShoppingCart::when($userId, function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        }, function ($query) use ($sessionId) {
-            $query->where('session_id', $sessionId);
-        })->delete();
-
-        // Clear session cart (optional if you use a session-based cart as well)
-        session()->forget('cart');
-        return view('checkout.payment-success');
+        return view('landing.payment.success');
     }
-
 
     public function cancel()
     {
-        return view('checkout.payment-cancel');
+        return view('landing.payment.cancel');
     }
 }

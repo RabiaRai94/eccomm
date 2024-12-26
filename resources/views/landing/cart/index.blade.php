@@ -127,6 +127,7 @@
                         @csrf
                         <input type="hidden" name="total" value="{{ $total }}">
                         <button type="submit" class="btn btn-success">Proceed to Checkout</button>
+                        <a href="{{ route('checkout') }}" class="btn btn-success">Checkout</a>
                     </form>
 
                 </div>

@@ -112,15 +112,13 @@ class ShoppingCartController extends Controller
     public function addToCart(Request $request)
     {
         $variant = ProductVariant::with('product')->findOrFail($request->variant_id);
-        $userId = Auth::check() ? auth()->id() : null; // Check if the user is logged in
-        $sessionId = session()->get('cart_session_id') ?? Str::uuid()->toString(); // Generate session ID if not present
-        session()->put('cart_session_id', $sessionId); // Store session ID
-
+        $userId = Auth::check() ? auth()->id() : null; 
+        $sessionId = session()->get('cart_session_id') ?? Str::uuid()->toString(); 
+        session()->put('cart_session_id', $sessionId); 
         $productName = $variant->product ? $variant->product->name : 'Default Product';
         $image = $variant->attachments->first()->file_path ?? 'default-image.jpg';
         $price = $variant->price;
 
-        // Check if item already exists in the cart
         $existingCartItem = ShoppingCart::when($userId, function ($query) use ($userId, $variant) {
             $query->where([
                 ['user_id', '=', $userId],
@@ -136,12 +134,10 @@ class ShoppingCartController extends Controller
         })->first();
 
         if ($existingCartItem) {
-            // Update quantity if the product already exists in the cart
             $existingCartItem->quantity += $request->quantity ?? 1;
             $existingCartItem->price = $price;
             $existingCartItem->save();
         } else {
-            // Create a new cart item
             $cartItem = new ShoppingCart();
             $cartItem->user_id = $userId;
             $cartItem->session_id = $userId ? null : $sessionId;
@@ -152,7 +148,6 @@ class ShoppingCartController extends Controller
             $cartItem->save();
         }
 
-        // Get cart count
         $cartCount = ShoppingCart::when($userId, function ($query) use ($userId) {
             $query->where('user_id', $userId);
         }, function ($query) use ($sessionId) {

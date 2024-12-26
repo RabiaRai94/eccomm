@@ -50,18 +50,27 @@ Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('ca
 // Route::post('/cart/update', [ShoppingCartController::class, 'updateCart'])->name('cart.update');
 // Route::get('/cart', [ShoppingCartController::class, 'cartShow'])->name('cart.show');
 Route::delete('/cart/remove/{id}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
-Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent'])->name('payment.create-intent');
+// Route::post('/create-intent', [PaymentController::class, 'createPaymentIntent'])->name('payment.create-intent');
 
 
-Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout'); 
-Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
-Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
-Route::get('/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+// Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout'); 
+// Route::post('/process-payment', [PaymentController::class, 'processPayment'])->name('payment.process');
+
+
+// Route::post('/payment-intent', [PaymentController::class, 'createPaymentIntent'])->name('payment.intent');
+// Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+// Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
 // Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
 // Route::post('/create-payment-intent', [PaymentController::class, 'createPaymentIntent']);
 // Route::get('/payment-success', [PaymentController::class, 'success'])->name('payment.success');
 // Route::get('/payment-cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
- 
+Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+Route::post('/payment/create-intent', [PaymentController::class, 'createPaymentIntent'])->name('payment.create-intent');
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
 Route::get('/contact-us', [FrontController::class, 'contactUs'])->name('contact-us');
 Route::get('/about-us', [FrontController::class, 'aboutUs'])->name('about-us');

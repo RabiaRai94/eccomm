@@ -8,4 +8,3 @@
     <!-- <p><a href="{{ route('shopproducts') }}" class="btn btn-outline-primary">Continue to shop more</a></p> -->
 </div>
 @endsection
-<script src="https://js.stripe.com/v3/"></script>
