@@ -5,9 +5,8 @@
     <h3>Checkout</h3>
     <form action="{{ route('payment.process') }}" method="POST" id="payment-form">
         @csrf
-        <!-- <input type="hidden" name="price" value="{{ number_format($total, 2) }}">
-        <input type="hidden" name="stripeToken" id="stripe-Token"> -->
-        <input type="hidden" name="paymentTransactionId" id="paymentTransactionId" value="">
+        <input type="hidden" name="price" value="{{ number_format($total, 2) }}">
+        <input type="hidden" name="stripeToken" id="stripe-Token">
         <div id="card-element" class="form-control"></div>
         <button type="submit" id="pay-button" class="btn btn-primary">Pay</button>
         <div id="error-message" class="text-danger mt-2"></div>
@@ -21,8 +20,11 @@
     const cardElement = elements.create('card');
     cardElement.mount('#card-element');
 
+
+
     document.getElementById('pay-button').addEventListener('click', async (event) => {
         event.preventDefault();
+
         console.log("Pay button clicked");
 
         const {
@@ -39,14 +41,14 @@
         if (error) {
             console.log("Error during payment confirmation:", error.message);
             document.getElementById('error-message').textContent = error.message;
-        } else if
-       
-        (paymentIntent && paymentIntent.status === 'succeeded') {
-            document.getElementById('paymentTransactionId').value = paymentIntent.id;
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+            console.log("Payment succeeded:", paymentIntent.id);
+
+            document.getElementById('stripe-Token').value = paymentIntent.id;
+            console.log("Submitting the form now...");
             document.getElementById('payment-form').submit();
+
         }
-
-
     });
 </script>
 @endsection

@@ -37,7 +37,7 @@ class ShoppingCartController extends Controller
         }
         $cartItems->each(function ($item) {
             if ($item->product && $item->product->variants->isNotEmpty()) {
-                $variant = $item->product->variants->first(); // Adjust if specific logic is needed
+                $variant = $item->product->variants->first(); 
                 $item->variant_stock = $variant->stock;
             }
         });
