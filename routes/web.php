@@ -7,6 +7,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VariantController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ProductCategoryController;
@@ -37,7 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
+Route::post('/webhook', [WebhookController::class, 'handle']);
 
 Route::get('/home', [FrontController::class, 'index'])->name('home');
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
@@ -47,13 +48,16 @@ Route::post('/shopping-cart', [ShoppingCartController::class, 'updateCart'])->na
 Route::get('/shopping-cart', [ShoppingCartController::class, 'index'])->name('shopping-cart');
 Route::post('/cart/add', [ShoppingCartController::class, 'addToCart'])->name('cart.add');
 Route::delete('/cart/remove/{id}', [ShoppingCartController::class, 'removeFromCart'])->name('cart.remove');
+Route::match(['get', 'post'], '/checkout', [PaymentController::class, 'checkout'])->name('checkout');
 
-Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
+// Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
 Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
 
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
-Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
+Route::get('/send-confirmation-emails', [PaymentController::class, 'sendOrderConfirmationEmails']);
+Route::post('/guest-checkout', [PaymentController::class, 'processGuestCheckout'])->name('guest.checkout.process');
 
+Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 Route::post('/payment/intent', [PaymentController::class, 'createPaymentIntent'])->name('payment.intent');
 
 Route::get('/blogs', [FrontController::class, 'blogs'])->name('blogs');
