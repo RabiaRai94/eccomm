@@ -36,8 +36,11 @@ class SendOrderConfirmationEmails extends Command
         $threshold = Carbon::now()->subMinutes(1);
 
         $this->processPendingPayments($threshold);
+    
+        $this->processPendingOrders();
+    
         $this->processCompletedOrders($threshold);
-
+    
         return 0;
     }
 
@@ -53,20 +56,55 @@ class SendOrderConfirmationEmails extends Command
             ->chunk(100, function ($payments) {
                 foreach ($payments as $payment) {
                     try {
+                        // Update Payment status
                         $payment->status = PaymentStatusEnum::SUCCESSFUL;
                         $payment->save();
 
+                        // Fetch the associated ProductOrder
                         $order = $payment->productOrder;
-                        
+
+                        // Update ProductOrder status if it's in PENDING
                         if ($order && $order->status === ProductOrderStatusEnum::PENDING) {
-                            $this->markOrderCompleted($order);
+                            Log::info("Processing ProductOrder ID: {$order->id}");
+                            $order->status = ProductOrderStatusEnum::COMPLETED;
+                            $order->save();
+
+                            // Optionally send a confirmation email
+                            $this->sendConfirmationEmail($order);
+                        } else {
+                            Log::warning("ProductOrder not found or not in PENDING status for Payment ID: {$payment->id}");
                         }
                     } catch (\Exception $e) {
-                        Log::error("Error processing payment ID {$payment->id}: {$e->getMessage()}");
+                        Log::error("Error processing Payment ID: {$payment->id}. Exception: {$e->getMessage()}");
                     }
                 }
             });
     }
+   
+    private function processPendingOrders()
+    {
+        ProductOrder::where('status', ProductOrderStatusEnum::PENDING)
+            ->chunk(100, function ($orders) {
+                foreach ($orders as $order) {
+                    try {
+                        Log::info("Processing ProductOrder ID: {$order->id}");
+
+                       
+                        $order->status = ProductOrderStatusEnum::COMPLETED;
+                        $order->save();
+
+                    
+                        $this->sendConfirmationEmail($order);
+
+                        Log::info("ProductOrder ID: {$order->id} marked as COMPLETED.");
+                    } catch (\Exception $e) {
+                        Log::error("Error processing ProductOrder ID: {$order->id}. Exception: {$e->getMessage()}");
+                    }
+                }
+            });
+    }
+
+
 
     /**
      * Process orders marked as completed within the last 10 minutes.
@@ -92,15 +130,17 @@ class SendOrderConfirmationEmails extends Command
     private function markOrderCompleted(ProductOrder $order)
     {
         try {
+            Log::info("Updating order ID {$order->id} to COMPLETED.");
             $order->status = ProductOrderStatusEnum::COMPLETED;
             $order->save();
-    
+
             $this->sendConfirmationEmail($order);
         } catch (\Exception $e) {
             Log::error("Error updating order ID {$order->id}: {$e->getMessage()}");
         }
     }
-    
+
+
 
     /**
      * Send a confirmation email for the given order.

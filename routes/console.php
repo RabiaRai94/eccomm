@@ -19,7 +19,8 @@ use App\Http\Controllers\PaymentController;
 use Illuminate\Console\Scheduling\Schedule;
 
 
+
 app(Schedule::class)->command('cart:expire');
 // app(Schedule::class)->command('order:send-confirmation-emails');
 
-app(Schedule::class)->command('order:send-confirmation-emails')->everyMinute();
+app(Schedule::class)->command('order:send-confirmation-emails');

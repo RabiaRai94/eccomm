@@ -441,13 +441,13 @@ class PaymentController extends Controller
 
             $productOrder->load('orderItems.product');
             // Mail::to(Auth::user()->email)->send(new OrderConfirmationMail($productOrder));
-            ShoppingCart::when($userId, function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            }, function ($query) use ($sessionId) {
-                $query->where('session_id', $sessionId);
-            })->delete();
+            // ShoppingCart::when($userId, function ($query) use ($userId) {
+            //     $query->where('user_id', $userId);
+            // }, function ($query) use ($sessionId) {
+            //     $query->where('session_id', $sessionId);
+            // })->delete();
 
-            session()->forget('cart');
+            // session()->forget('cart');
 
             return view('landing.payment.success', compact('productOrder'));
         } catch (\Exception $e) {
@@ -456,7 +456,7 @@ class PaymentController extends Controller
         }
     }
 
-
+  
 
     // public function success($totalPrice, $paymentTransactionId)
     // {

@@ -11,6 +11,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "*",
         "ramsey/uuid": "^4.7",
+        "spatie/laravel-webhook-client": "^3.4",
         "stripe/stripe-php": "^16.4",
         "yajra/laravel-datatables": "^11.0"
     },
