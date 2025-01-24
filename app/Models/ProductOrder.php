@@ -11,6 +11,7 @@ class ProductOrder extends Model
 
     protected $fillable = [
         'user_id',
+        'guest_email',
         'total_price',
         'status',
         'payment_method_id',

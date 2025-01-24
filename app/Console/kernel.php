@@ -10,6 +10,14 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
+
+     protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            // Other middleware...
+        ],
+    ];
+    
     protected function schedule(Schedule $schedule): void
     {
 

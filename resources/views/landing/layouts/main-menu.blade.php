@@ -61,6 +61,45 @@
      .icon-header-item:hover {
           cursor: pointer;
      }
+
+     .dropdown {
+          position: relative;
+     }
+
+     .dropdown-menu {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          background: white;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          padding: 10px 0;
+          min-width: 150px;
+          z-index: 1000;
+          list-style: none;
+          border: 1px solid #ddd;
+     }
+
+     .dropdown:hover .dropdown-menu {
+          display: block;
+     }
+
+     .dropdown-menu li {
+          padding: 5px 20px;
+     }
+
+     .dropdown-menu li:hover {
+          background-color: #f8f8f8;
+     }
+
+     .dropdown-menu a {
+          color: #333;
+          text-decoration: none;
+     }
+
+     .dropdown-menu a:hover {
+          text-decoration: underline;
+     }
 </style>
 
 
@@ -130,9 +169,20 @@
                               <li>
                                    <a href="{{ route('contact-us') }}">Contact</a>
                               </li>
-                              <li>
-                                   <a href="{{ route('login') }}">Login</a>
+                              <li class="dropdown">
+                                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        Login </i>
+                                   </a>
+                                   <ul class="dropdown-menu">
+                                        <li>
+                                             <a href="{{ route('login') }}">Login as Admin</a>
+                                        </li>
+                                        <li>
+                                             <a href="{{ route('client.login') }}">Login as Client</a>
+                                        </li>
+                                   </ul>
                               </li>
+
                               <li>
                                    <a href="{{ route('register') }}">Register</a>
                               </li>
@@ -246,6 +296,23 @@
 
 </header>
 <script>
+     document.querySelectorAll('.dropdown-toggle').forEach(function(dropdown) {
+          dropdown.addEventListener('click', function(e) {
+               e.preventDefault();
+               const menu = this.nextElementSibling;
+               menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+          });
+     });
+
+     
+     window.addEventListener('click', function(e) {
+          if (!e.target.matches('.dropdown-toggle')) {
+               document.querySelectorAll('.dropdown-menu').forEach(function(menu) {
+                    menu.style.display = 'none';
+               });
+          }
+     });
+
      let topBar = document.querySelector('.top-bar');
      let navbar = document.querySelector('.wrap-menu-desktop');
      let prevScrollPos = window.pageYOffset;

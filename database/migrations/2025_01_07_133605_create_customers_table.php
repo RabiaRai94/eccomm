@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable(); 
-            $table->string('email');
-            $table->string('stripe_customer_id');
+            $table->string('email')->unique();
+            $table->string('stripe_customer_id')->nullable();
             $table->unsignedBigInteger('auth_user_id')->nullable();
             $table->timestamps();
         });

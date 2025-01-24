@@ -8,13 +8,14 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VariantController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\ProductCategoryController;
 
-Route::get('/', function () {
-    return view('landing.home');
-});
+// Route::get('/', function () {
+//     return view('landing.home');
+// });
 
 Route::get('/login', function () {
     return view('admin.auth.login');
@@ -39,8 +40,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/webhook', [WebhookController::class, 'handle']);
-
-Route::get('/home', [FrontController::class, 'index'])->name('home');
+Route::get('/', [FrontController::class, 'index'])->name('home');
+Route::get('/home', [FrontController::class, 'index']);
 Route::get('/shopproducts', [FrontController::class, 'shopproducts'])->name('shopproducts');
 Route::get('/cart/count', [ShoppingCartController::class, 'cartCount']);
 
@@ -80,6 +81,24 @@ Route::resource('categories', ProductCategoryController::class);
 Route::get('/test', function () {
     return view('test');
 });
+// Route::prefix('client')->name('client.')->group(function () {
+//     Route::get('login', [CustomerAuthController::class, 'showLoginForm'])->name('login'); 
+//     Route::post('login', [CustomerAuthController::class, 'login'])->name('login.submit'); 
+//     Route::post('logout', [CustomerAuthController::class, 'logout'])->name('logout'); 
+// });
+Route::prefix('customer')->name('client.')->group(function () {
+    Route::get('login', [CustomerAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [CustomerAuthController::class, 'login'])->name('login.submit');
+    Route::get('register', [CustomerAuthController::class, 'showRegistrationForm'])->name('register');
+    Route::post('register', [CustomerAuthController::class, 'register'])->name('register.submit');
+    Route::post('logout', [CustomerAuthController::class, 'logout'])->name('logout');
+
+    Route::middleware('auth:customer')->group(function () {
+        Route::get('dashboard', [CustomerAuthController::class, 'dashboard'])->name('dashboard');
+    });
+});
+
+
 
 
 require __DIR__ . '/auth.php';

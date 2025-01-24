@@ -16,6 +16,7 @@ class WebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        
         $stripeWebhookSecret = config('services.stripe.webhook_secret');
 
         $signature = $request->header('Stripe-Signature');

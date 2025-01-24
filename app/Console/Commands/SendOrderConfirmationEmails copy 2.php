@@ -36,7 +36,7 @@ class SendOrderConfirmationEmails extends Command
     {
         $threshold = Carbon::now()->subMinutes(1);
 
-        // $this->processPendingPayments($threshold);
+        $this->processPendingPayments($threshold);
         $this->processPendingOrders();
         $this->processCompletedOrders($threshold);
 
@@ -61,15 +61,15 @@ class SendOrderConfirmationEmails extends Command
                         Log::error("Failed to update Payment ID {$payment->id}.");
                     }
 
-                    if ($payment->productOrder) {
-                        $order = $payment->productOrder;
-                        $order->status = ProductOrderStatusEnum::COMPLETED;
-                        if ($order->save()) {
-                            Log::info("ProductOrder ID {$order->id} status updated to COMPLETED.");
-                        } else {
-                            Log::error("Failed to update ProductOrder ID {$order->id}.");
-                        }
-                    }
+                    // if ($payment->productOrder) {
+                    //     $order = $payment->productOrder;
+                    //     $order->status = ProductOrderStatusEnum::COMPLETED;
+                    //     if ($order->save()) {
+                    //         Log::info("ProductOrder ID {$order->id} status updated to COMPLETED.");
+                    //     } else {
+                    //         Log::error("Failed to update ProductOrder ID {$order->id}.");
+                    //     }
+                    // }
                 });
             } catch (\Exception $e) {
                 Log::error("Error processing Payment ID {$payment->id}: " . $e->getMessage());
@@ -94,14 +94,6 @@ class SendOrderConfirmationEmails extends Command
                     }
                 }
             });
-
-          Payment::where('status', PaymentStatusEnum::PENDING)
-                ->chunk(100,function($payments){
-                    foreach($payments as $payment){
-                        $payment->status = PaymentStatusEnum::SUCCESSFUL;
-                        $payment->save();
-                    }
-                });
     }
 
     private function processCompletedOrders(Carbon $threshold)
